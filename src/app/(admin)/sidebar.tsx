@@ -55,7 +55,7 @@ export default function Sidebar() {
         </Avatar>
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">User Name</p>
-          <Link href="/auth/logout" className="inline-flex items-center gap-1 text-xs text-emerald-50/80 hover:text-white">
+          <Link href="/" className="inline-flex items-center gap-1 text-xs text-emerald-50/80 hover:text-white">
             <LogOut className="h-3.5 w-3.5" />
             Logout
           </Link>
