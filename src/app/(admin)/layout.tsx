@@ -1,57 +1,47 @@
-import Link from "next/link";
+'use client'
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import * as React from 'react'
+
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { Menu } from 'lucide-react'
+import Sidebar from './sidebar'
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = React.useState(false)
+
   return (
-    <div className="flex h-screen">
-      {/* New simple aside sidebar */}
-      <aside className="w-64 bg-emerald-500 text-white p-4">
-        {/* Administrator Section */}
-        <div className="mb-4 flex flex-col gap-2 items-center">
-          <h2 className="text-xl font-bold">Administrator</h2>
-          <div className="flex items-center mt-2">
-            <img src="/placeholder-user.jpg" alt="User" className="w-10 h-10 rounded-full mr-2" />
+    <div className="flex h-dvh bg-background">
+      {/* Desktop sidebar (>= md) */}
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
+
+      {/* Mobile topbar + sheet (drawer) */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-center gap-2 border-b px-3 py-2 md:hidden">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="shrink-0">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-72">
+              <Sidebar />
+            </SheetContent>
+          </Sheet>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">Administrator</p>
+            <p className="truncate text-xs text-muted-foreground">Portal Traceability</p>
           </div>
-            <div>
-              <p className="font-semibold">User Name</p>
-              <Link href="/auth/logout" className="text-sm hover:text-blue-300">Logout</Link>
-            </div>
         </div>
 
-        {/* Navigation Links */}
-        <nav>
-          <ul>
-            <li className="mb-2">
-              <span className="font-semibold">Transaction</span>
-              <ul className="ml-4 mt-2">
-                <li className="mb-2">
-                  <Link href="/admin/transaction" className="hover:text-blue-300">Transaction</Link>
-                </li>
-                <li className="mb-2">
-                  <Link href="/admin/trace" className="hover:text-blue-300">Trace</Link>
-                </li>
-                <li className="mb-2">
-                  <Link href="/admin/declaration" className="hover:text-blue-300">Declaration</Link>
-                </li>
-              </ul>
-            </li>
-            <li className="mb-2">
-              <span className="font-semibold">Report</span>
-              <ul className="ml-4 mt-2">
-                <li className="mb-2">
-                  <Link href="/admin/report/summary-cpo-pk" className="hover:text-blue-300">Summary CPO & PK</Link>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-4 flex flex-col">{children}</main>
+        {/* Main content */}
+        <main className="flex-1 overflow-auto p-4">
+          {children}
+        </main>
+      </div>
     </div>
-  );
+  )
 }

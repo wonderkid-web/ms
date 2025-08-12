@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { signIn } from "next-auth/react"
+// import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Eye, EyeOff, Globe, LogIn } from 'lucide-react'
+import { Eye, EyeOff, Globe, LogIn } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,6 +36,7 @@ export default function LoginPage() {
     //     setError("Email atau password salah.")
     //     return
     //   }
+    //   router.push("/admin/transaction")
     // })
     router.push("/admin/transaction")
   }
@@ -45,8 +46,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-0px)]">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-        {/* Left: Illustration + Headline */}
-        <div className="relative hidden overflow-hidden bg-gradient-to-b from-violet-50 to-white lg:block">
+        {/* Left: Illustration + Headline (ganti ke emerald) */}
+        <div className="relative hidden overflow-hidden bg-gradient-to-b from-emerald-50 to-white lg:block">
           <div className="absolute inset-0">
             <Image
               src="/logo.png"
@@ -59,12 +60,14 @@ export default function LoginPage() {
           <div className="relative z-10 flex h-full flex-col">
             <header className="px-10 pt-8">
               <div className="inline-flex items-center gap-2">
-                <div className="h-8 w-8 rounded-md bg-violet-600" aria-hidden="true" />
-                <span className="text-xl font-semibold tracking-tight text-violet-700">{"Traceability"}</span>
+                <div className="h-8 w-8 rounded-md bg-emerald-600" aria-hidden="true" />
+                <span className="text-xl font-semibold tracking-tight text-emerald-700">
+                  {"Traceability"}
+                </span>
               </div>
             </header>
             <div className="mt-auto px-10 pb-16">
-              <h2 className="max-w-xl text-4xl font-extrabold leading-tight tracking-tight text-violet-800">
+              <h2 className="max-w-xl text-4xl font-extrabold leading-tight tracking-tight text-emerald-800">
                 {"Powering a new era of supply chain risk assessment"}
               </h2>
             </div>
@@ -75,28 +78,28 @@ export default function LoginPage() {
         <div className="flex items-center justify-center px-6 py-10">
           <div className="w-full max-w-md">
             {/* Language selector */}
-            <div className="mb-10 flex justify-end">
+            {/* <div className="mb-10 flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="gap-2">
                     <Globe className="h-4 w-4" />
-                    {"English (US)"}
+                    {"Bahasa Indonesia"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem>{"English (US)"}</DropdownMenuItem>
                   <DropdownMenuItem>{"Bahasa Indonesia"}</DropdownMenuItem>
+                  <DropdownMenuItem>{"English (US)"}</DropdownMenuItem>
                   <DropdownMenuItem>{"English (UK)"}</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </div> */}
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight text-violet-800">{"Log in"}</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-emerald-800">{"Log in"}</h1>
                 <p className="text-sm text-muted-foreground">
                   {"Have you not registered? "}
-                  <Link href="/auth/register" className="text-violet-700 underline underline-offset-4">
+                  <Link href="/auth/register" className="text-emerald-700 underline underline-offset-4">
                     {"Contact us"}
                   </Link>
                 </p>
@@ -105,7 +108,7 @@ export default function LoginPage() {
               <Card>
                 <CardContent className="pt-6">
                   {justRegistered && (
-                    <Alert className="mb-4">
+                    <Alert className="mb-4 border-emerald-200 text-emerald-900">
                       <AlertTitle>{"Pendaftaran berhasil"}</AlertTitle>
                       <AlertDescription>{"Silakan login dengan email dan password Anda."}</AlertDescription>
                     </Alert>
@@ -128,6 +131,7 @@ export default function LoginPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         autoComplete="email"
                         required
+                        className="focus-visible:ring-emerald-600"
                       />
                     </div>
 
@@ -142,7 +146,7 @@ export default function LoginPage() {
                           onChange={(e) => setPassword(e.target.value)}
                           autoComplete="current-password"
                           required
-                          className="pr-10"
+                          className="pr-10 focus-visible:ring-emerald-600"
                         />
                         <button
                           type="button"
@@ -157,7 +161,7 @@ export default function LoginPage() {
 
                     <Button
                       type="submit"
-                      className="mt-2 w-full bg-violet-600 hover:bg-violet-700"
+                      className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700"
                       disabled={isPending}
                     >
                       <LogIn className="mr-2 h-4 w-4" />
@@ -166,7 +170,7 @@ export default function LoginPage() {
                   </form>
 
                   <div className="mt-4 text-center text-sm">
-                    <Link href="#" className="text-violet-700 underline underline-offset-4">
+                    <Link href="#" className="text-emerald-700 underline underline-offset-4">
                       {"Forgot password?"}
                     </Link>
                   </div>
