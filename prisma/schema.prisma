@@ -59,50 +59,54 @@ model VerificationToken {
 }
 
 model Supplier {
-  id            String   @id @default(cuid())
-  name          String
-  certification String?
-  location      String?
-  contactEmail  String?
-  description   String?
-
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   products  Product[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([name])
-  @@index([location])
 }
+
+model ProductGroup {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Factory {
+  id        Int       @id @default(autoincrement())
+  name      String
+  alamat    String
+  latitude  Float
+  longitude Float
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
 
 model Product {
-  id          String   @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   name        String
-  description String?
-  supplierId  String
-  batchCode   String?
-  origin      String?
-  harvestDate DateTime?
+  supplierId  Int
+  groupId     Int
+  factoryId   Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  supplier    Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  traceEvents TraceEvent[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([supplierId])
-  @@index([batchCode])
+  supplier    Supplier     @relation(fields: [supplierId], references: [id])
+  group       ProductGroup @relation(fields: [groupId], references: [id])
+  factory     Factory      @relation(fields: [factoryId], references: [id])
 }
 
-model TraceEvent {
-  id         String   @id @default(cuid())
-  productId  String
-  stepName   String
-  location   String?
-  notes      String?
-  occurredAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId, occurredAt])
+model Employee {
+  id            Int      @id @default(autoincrement())
+  fullName      String
+  email         String   @unique
+  whatsapp      String   @db.VarChar(20) // Nomor WA tanpa spasi
+  corporate     String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

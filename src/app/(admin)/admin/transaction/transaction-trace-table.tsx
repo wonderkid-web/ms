@@ -105,7 +105,7 @@ const TransactionTraceTable = () => {
         onChange={(e) => setSearch(e.target.value)}
         className="mb-4 w-80"
       />
-      <Table>
+      <Table className="text-xs!">
         <TableHeader>
           <TableRow className="bg-emerald-500">
             <TableHead className="text-center text-white">TraceID</TableHead>
