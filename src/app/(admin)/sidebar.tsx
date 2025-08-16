@@ -7,20 +7,20 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   HandCoins,
-  Route as RouteIcon,
   Factory,
   FileText,
   BarChart3,
-  LayoutDashboard,
-  LogOut,
   Package,
   Users,
   Building,
   Truck,
   Group,
+  User2,
 } from "lucide-react";
-import logo from "@/../public/logo.jpeg"
+import logo from "@/../public/logo.jpeg";
 import Image from "next/image";
+import { SignOutButton } from "@clerk/nextjs";
+import Profile from "./profile";
 
 function NavItem({
   href,
@@ -56,7 +56,7 @@ export default function Sidebar() {
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-4">
         <div className="grid h-9 w-9 place-items-center rounded-md bg-white/10 backdrop-blur">
-          <Image src={logo} alt="logo" className="h-9 w-9 rounded-md"  />
+          <Image src={logo} alt="logo" className="h-9 w-9 rounded-md" />
         </div>
         <div className="leading-tight">
           <p className="text-sm font-semibold">Administrator</p>
@@ -66,23 +66,7 @@ export default function Sidebar() {
 
       <Separator className="bg-white/10" />
 
-      {/* Profile */}
-      <div className="flex items-center gap-3 px-4 py-4">
-        <Avatar className="h-10 w-10 ring-2 ring-white/20">
-          <AvatarImage src="/placeholder-user.jpg" alt="User" />
-          <AvatarFallback>AD</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">User Name</p>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 text-xs text-emerald-50/80 hover:text-white"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Logout
-          </Link>
-        </div>
-      </div>
+      <Profile />
 
       <Separator className="bg-white/10" />
 
@@ -132,12 +116,12 @@ export default function Sidebar() {
             icon={Package}
             label="Produk"
           />
+          <NavItem href="/admin/master-data/group" icon={Group} label="Group" />
           <NavItem
-            href="/admin/master-data/group"
-            icon={Group}
-            label="Group"
+            href="/admin/master-data/user"
+            icon={Users}
+            label="Employee"
           />
-          <NavItem href="/admin/master-data/user" icon={Users} label="User" />
           <NavItem
             href="/admin/master-data/factories"
             icon={Building}
@@ -148,6 +132,14 @@ export default function Sidebar() {
             icon={Truck}
             label="Supplier"
           />
+        </div>
+
+        <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-emerald-100/70">
+          Account
+        </p>
+
+        <div className="space-y-1 px-2">
+          <NavItem href="/admin/account" icon={User2} label="User Account" />
         </div>
       </ScrollArea>
     </div>

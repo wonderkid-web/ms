@@ -1,12 +1,6 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, ShieldCheck, Trees, Truck } from "lucide-react"
-import { redirect } from "next/navigation"
-
 export default function HomePage() {
   return (
-    redirect('/auth/login')
+    <h1>Hallo Ges</h1>
     // <main className="min-h-[calc(100vh-4rem)]">
     //   <section className="relative overflow-hidden">
     //     <div className="absolute inset-0 bg-gradient-to-b from-emerald-50 to-white" aria-hidden="true" />

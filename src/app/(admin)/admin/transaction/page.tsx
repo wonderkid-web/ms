@@ -41,6 +41,8 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
+import { Session } from "@clerk/nextjs/server";
+import { useSessionList } from "@clerk/nextjs";
 
 /* ---------- Types ---------- */
 type OptionType = { value: string; label: string };
@@ -399,6 +401,8 @@ export default function DeclarationTable() {
     setFFactory(null);
     setQ("");
   };
+
+  const session = useSessionList()
 
   return (
     <div className="p-5">
