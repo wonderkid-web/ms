@@ -19,6 +19,8 @@ import {
   Truck,
   Group,
 } from "lucide-react";
+import logo from "@/../public/logo.jpeg"
+import Image from "next/image";
 
 function NavItem({
   href,
@@ -54,7 +56,7 @@ export default function Sidebar() {
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-4">
         <div className="grid h-9 w-9 place-items-center rounded-md bg-white/10 backdrop-blur">
-          <LayoutDashboard className="h-5 w-5" />
+          <Image src={logo} alt="logo" className="h-9 w-9 rounded-md"  />
         </div>
         <div className="leading-tight">
           <p className="text-sm font-semibold">Administrator</p>

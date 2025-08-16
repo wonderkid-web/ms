@@ -5,9 +5,8 @@ import {Toaster} from "react-hot-toast"
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Treaceabily Customers - PT. Mahkota Group, Tbk',
+  description: 'The Application to check Tracking Customers PT. Mahkota Group, Tbk',
 }
 
 export default function RootLayout({
