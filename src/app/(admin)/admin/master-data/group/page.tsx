@@ -2,23 +2,38 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from "@/services/supplierServices";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import {
+  getGroups,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+} from "@/services/groupServices";
 
-type Supplier = {
+type Group = {
   id: number;
   name: string;
 };
 
-export default function SuppliersPage() {
-  const [data, setData] = useState<Supplier[]>([]);
+export default function GroupsPage() {
+  const [data, setData] = useState<Group[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "" });
   const [editingId, setEditingId] = useState<number | null>(null);
 
   async function loadData() {
-    const res = await getSuppliers();
-    setData(res);
+    try {
+      const res = await getGroups();
+      console.log(res)
+      setData(res);
+    } catch (error) {
+      toast.error("Gagal Mengambil Data " + error);
+    }
   }
 
   useEffect(() => {
@@ -28,34 +43,34 @@ export default function SuppliersPage() {
   async function saveData() {
     try {
       if (editingId) {
-        await updateSupplier(editingId, form);
-        toast.success("Supplier berhasil diperbarui!");
+        await updateGroup(editingId, form);
+        toast.success("Group berhasil diperbarui!");
       } else {
-        await createSupplier(form);
-        toast.success("Supplier berhasil ditambahkan!");
+        await createGroup(form);
+        toast.success("Group berhasil ditambahkan!");
       }
       loadData();
       setShowModal(false);
       setEditingId(null);
       setForm({ name: "" });
     } catch {
-      toast.error("Gagal menyimpan data Supplier");
+      toast.error("Gagal menyimpan data Group");
     }
   }
 
   async function removeData(id: number) {
     try {
-      await deleteSupplier(id);
-      toast.success("Supplier berhasil dihapus!");
+      await deleteGroup(id);
+      toast.success("Group berhasil dihapus!");
       loadData();
     } catch {
-      toast.error("Gagal menghapus Supplier");
+      toast.error("Gagal menghapus Group");
     }
   }
 
-  const columns: ColumnDef<Supplier>[] = [
+  const columns: ColumnDef<Group>[] = [
     { accessorKey: "id", header: "No" },
-    { accessorKey: "name", header: "Name" },
+    { accessorKey: "name", header: "Nama Group" },
     {
       id: "actions",
       header: "Actions",
@@ -82,11 +97,17 @@ export default function SuppliersPage() {
     },
   ];
 
-  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4 text-emerald-700">Manage Suppliers</h1>
+      <h1 className="text-2xl font-bold mb-4 text-emerald-700">
+        Manage Groups
+      </h1>
       <div className="mb-3 flex justify-between">
         <input
           placeholder="Search..."
@@ -109,8 +130,14 @@ export default function SuppliersPage() {
           {table.getHeaderGroups().map((hg) => (
             <tr key={hg.id}>
               {hg.headers.map((header) => (
-                <th key={header.id} className="border-b p-3 text-left text-emerald-700 font-semibold">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
+                <th
+                  key={header.id}
+                  className="border-b p-3 text-left text-emerald-700 font-semibold"
+                >
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
                 </th>
               ))}
             </tr>
@@ -133,12 +160,12 @@ export default function SuppliersPage() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
             <h2 className="text-xl font-bold mb-4 text-emerald-700">
-              {editingId ? "Edit Supplier" : "Add Supplier"}
+              {editingId ? "Edit Group" : "Add Group"}
             </h2>
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder="Name"
+                placeholder="Nama Group"
                 value={form.name}
                 onChange={(e) => setForm({ name: e.target.value })}
                 className="border rounded p-2 w-full"

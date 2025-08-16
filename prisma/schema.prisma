@@ -28,12 +28,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -59,54 +59,95 @@ model VerificationToken {
 }
 
 model Supplier {
-  id        Int       @id @default(autoincrement())
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  products     Product[]
+  declarations Declaration[]
+}
+
+model Group {
+  id           Int           @id @default(autoincrement())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  declarations Declaration[]
 }
 
 model ProductGroup {
-  id        Int       @id @default(autoincrement())
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  products     Product[]
+  declarations Declaration[]
 }
 
 model Factory {
-  id        Int       @id @default(autoincrement())
-  name      String
-  alamat    String
-  latitude  Float
-  longitude Float
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  alamat       String
+  latitude     Float
+  longitude    Float
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  products     Product[]
+  declarations Declaration[]
 }
 
-
 model Product {
-  id          Int          @id @default(autoincrement())
-  name        String
-  supplierId  Int
-  groupId     Int
-  factoryId   Int
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id         Int      @id @default(autoincrement())
+  name       String
+  supplierId Int
+  groupId    Int
+  factoryId  Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  supplier    Supplier     @relation(fields: [supplierId], references: [id])
-  group       ProductGroup @relation(fields: [groupId], references: [id])
-  factory     Factory      @relation(fields: [factoryId], references: [id])
+  supplier Supplier     @relation(fields: [supplierId], references: [id])
+  group    ProductGroup @relation(fields: [groupId], references: [id])
+  factory  Factory      @relation(fields: [factoryId], references: [id])
 }
 
 model Employee {
-  id            Int      @id @default(autoincrement())
-  fullName      String
-  email         String   @unique
-  whatsapp      String   @db.VarChar(20) // Nomor WA tanpa spasi
-  corporate     String
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String   @unique
+  whatsapp  String   @db.VarChar(20) // Nomor WA tanpa spasi
+  corporate String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Declaration {
+  id         Int  @id @default(autoincrement())
+  produkId   Int
+  groupId    Int
+  supplierId Int?
+  factoryId  Int
+
+  alamatPabrik String
+  latitude     Float
+  longitude    Float
+
+  kapasitas   String
+  sertifikasi String // Array sertifikasi
+
+  periodeDari   DateTime
+  periodeSampai DateTime
+
+  totalPersenTtp   Float
+  tanggalPengisian DateTime
+  diisiOleh        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  produk   ProductGroup @relation(fields: [produkId], references: [id])
+  group    Group        @relation(fields: [groupId], references: [id])
+  supplier Supplier?    @relation(fields: [supplierId], references: [id])
+  factory  Factory      @relation(fields: [factoryId], references: [id])
 }

@@ -17,6 +17,7 @@ import {
   Users,
   Building,
   Truck,
+  Group,
 } from "lucide-react";
 
 function NavItem({
@@ -94,7 +95,7 @@ export default function Sidebar() {
             icon={HandCoins}
             label="Transaction"
           />
-          <NavItem href="/admin/trace" icon={RouteIcon} label="Trace" />
+          {/* <NavItem href="/admin/trace" icon={RouteIcon} label="Trace" /> */}
           <NavItem
             href="/admin/declaration"
             icon={Factory}
@@ -128,6 +129,11 @@ export default function Sidebar() {
             href="/admin/master-data/produk"
             icon={Package}
             label="Produk"
+          />
+          <NavItem
+            href="/admin/master-data/group"
+            icon={Group}
+            label="Group"
           />
           <NavItem href="/admin/master-data/user" icon={Users} label="User" />
           <NavItem
