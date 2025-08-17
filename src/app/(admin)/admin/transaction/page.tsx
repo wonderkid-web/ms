@@ -41,7 +41,6 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
-import { Session } from "@clerk/nextjs/server";
 import { useSessionList } from "@clerk/nextjs";
 
 /* ---------- Types ---------- */
@@ -139,7 +138,9 @@ function CertBadge({ name }: { name: string }) {
   };
   const cl = palette[key] ?? "bg-gray-50 text-gray-700 border-gray-200";
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${cl}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${cl}`}
+    >
       <ShieldCheck className="h-3.5 w-3.5" />
       {key}
     </span>
@@ -149,7 +150,13 @@ function CertBadge({ name }: { name: string }) {
 function TtpBar({ value }: { value: number }) {
   const pct = Math.max(0, Math.min(100, value));
   const color =
-    pct >= 80 ? "bg-emerald-600" : pct >= 60 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-red-500";
+    pct >= 80
+      ? "bg-emerald-600"
+      : pct >= 60
+      ? "bg-emerald-500"
+      : pct >= 40
+      ? "bg-amber-500"
+      : "bg-red-500";
   return (
     <div className="min-w-[160px]">
       <div className="mb-1 flex items-center gap-1.5 text-sm text-foreground">
@@ -157,7 +164,10 @@ function TtpBar({ value }: { value: number }) {
         <span className="font-medium">{pct.toFixed(2)}%</span>
       </div>
       <div className="h-2.5 w-full rounded-full bg-emerald-100">
-        <div className={`h-2.5 rounded-full ${color}`} style={{ width: `${pct}%` }} />
+        <div
+          className={`h-2.5 rounded-full ${color}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
@@ -184,23 +194,23 @@ export default function DeclarationTable() {
   const mapToOptions = (rows: { id: number; name: string }[]) =>
     rows.map((r) => ({ value: String(r.id), label: r.name }));
 
-  async function loadOptions() {
-    try {
-      const [prods, groups, sups, facts] = await Promise.all([
-        getProductGroups(),
-        getGroups(),
-        getSuppliers(),
-        getFactories(),
-      ]);
-      setProdukOptions(mapToOptions(prods));
-      setGroupOptions(mapToOptions(groups));
-      setSupplierOptions(mapToOptions(sups));
-      setFactoryOptions(mapToOptions(facts));
-    } catch (e) {
-      console.error(e);
-      toast.error("Gagal memuat opsi filter");
-    }
-  }
+  // async function loadOptions() {
+  //   try {
+  //     const [prods, groups, sups, facts] = await Promise.all([
+  //       getProductGroups(),
+  //       getGroups(),
+  //       getSuppliers(),
+  //       getFactories(),
+  //     ]);
+  //     setProdukOptions(mapToOptions(prods));
+  //     setGroupOptions(mapToOptions(groups));
+  //     setSupplierOptions(mapToOptions(sups));
+  //     setFactoryOptions(mapToOptions(facts));
+  //   } catch (e) {
+  //     console.error(e);
+  //     toast.error("Gagal memuat opsi filter");
+  //   }
+  // }
 
   async function loadData() {
     try {
@@ -217,7 +227,33 @@ export default function DeclarationTable() {
 
   useEffect(() => {
     loadData();
-    loadOptions();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const p1 = getProductGroups()
+      .then((d) => !cancelled && setProdukOptions(mapToOptions(d)))
+      .catch(() => toast.error("Gagal memuat produk"));
+
+    const p2 = getGroups()
+      .then((d) => !cancelled && setGroupOptions(mapToOptions(d)))
+      .catch(() => toast.error("Gagal memuat group"));
+
+    const p3 = getSuppliers()
+      .then((d) => !cancelled && setSupplierOptions(mapToOptions(d)))
+      .catch(() => toast.error("Gagal memuat supplier"));
+
+    const p4 = getFactories()
+      .then((d) => !cancelled && setFactoryOptions(mapToOptions(d)))
+      .catch(() => toast.error("Gagal memuat pabrik"));
+
+    // opsional: supaya error nggak nge-crash effect
+    Promise.allSettled([p1, p2, p3, p4]);
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {
@@ -287,7 +323,10 @@ export default function DeclarationTable() {
           <span>{row.original.alamatPabrik}</span>
         </div>
       ),
-      meta: { headerClassName: "min-w-[460px]", cellClassName: "min-w-[460px]" },
+      meta: {
+        headerClassName: "min-w-[460px]",
+        cellClassName: "min-w-[460px]",
+      },
     },
     {
       id: "kapasitas",
@@ -298,7 +337,10 @@ export default function DeclarationTable() {
         </div>
       ),
       cell: ({ row }) => <CapacityChip val={row.original.kapasitas} />,
-      meta: { headerClassName: "min-w-[200px]", cellClassName: "min-w-[200px]" },
+      meta: {
+        headerClassName: "min-w-[200px]",
+        cellClassName: "min-w-[200px]",
+      },
     },
     {
       id: "sertifikasi",
@@ -313,7 +355,8 @@ export default function DeclarationTable() {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean);
-        if (!arr.length) return <span className="text-muted-foreground">-</span>;
+        if (!arr.length)
+          return <span className="text-muted-foreground">-</span>;
         return (
           <div className="flex flex-wrap gap-1.5">
             {arr.map((s, i) => (
@@ -322,7 +365,10 @@ export default function DeclarationTable() {
           </div>
         );
       },
-      meta: { headerClassName: "min-w-[260px]", cellClassName: "min-w-[260px]" },
+      meta: {
+        headerClassName: "min-w-[260px]",
+        cellClassName: "min-w-[260px]",
+      },
     },
     {
       id: "periode",
@@ -333,9 +379,15 @@ export default function DeclarationTable() {
         </div>
       ),
       cell: ({ row }) => (
-        <PeriodBadge from={row.original.periodeDari} to={row.original.periodeSampai} />
+        <PeriodBadge
+          from={row.original.periodeDari}
+          to={row.original.periodeSampai}
+        />
       ),
-      meta: { headerClassName: "min-w-[260px]", cellClassName: "min-w-[260px]" },
+      meta: {
+        headerClassName: "min-w-[260px]",
+        cellClassName: "min-w-[260px]",
+      },
     },
     {
       id: "ttp",
@@ -346,19 +398,28 @@ export default function DeclarationTable() {
         </div>
       ),
       cell: ({ row }) => <TtpBar value={row.original.totalPersenTtp} />,
-      meta: { headerClassName: "min-w-[220px]", cellClassName: "min-w-[220px]" },
+      meta: {
+        headerClassName: "min-w-[220px]",
+        cellClassName: "min-w-[220px]",
+      },
     },
     {
       id: "tanggalPengisian",
       header: "Tanggal Pengisian",
       cell: ({ row }) => formatDate(row.original.tanggalPengisian),
-      meta: { headerClassName: "min-w-[200px]", cellClassName: "min-w-[200px]" },
+      meta: {
+        headerClassName: "min-w-[200px]",
+        cellClassName: "min-w-[200px]",
+      },
     },
     {
       id: "diisiOleh",
       header: "Diisi Oleh",
       cell: ({ row }) => row.original.diisiOleh,
-      meta: { headerClassName: "min-w-[200px]", cellClassName: "min-w-[200px]" },
+      meta: {
+        headerClassName: "min-w-[200px]",
+        cellClassName: "min-w-[200px]",
+      },
     },
     {
       id: "actions",
@@ -379,7 +440,10 @@ export default function DeclarationTable() {
           </button>
         </div>
       ),
-      meta: { headerClassName: "min-w-[200px] text-center", cellClassName: "min-w-[200px]" },
+      meta: {
+        headerClassName: "min-w-[200px] text-center",
+        cellClassName: "min-w-[200px]",
+      },
     },
   ];
 
@@ -402,12 +466,14 @@ export default function DeclarationTable() {
     setQ("");
   };
 
-  const session = useSessionList()
+  const session = useSessionList();
 
   return (
     <div className="p-5">
       {/* Filter Bar */}
-      <h1 className="text-2xl font-semibold mb-2 text-emerald-800">Table Transaction</h1>
+      <h1 className="text-2xl font-semibold mb-2 text-emerald-800">
+        Table Transaction
+      </h1>
       <div className="mb-4 space-y-3 rounded-sm border bg-white p-4 shadow-sm">
         <div className="mb-2 flex items-center gap-2 text-emerald-800">
           <Filter className="h-4 w-4" />
@@ -521,10 +587,15 @@ export default function DeclarationTable() {
                 {hg.headers.map((header) => (
                   <th
                     key={header.id}
-                    // @ts-expect-error its okay
-                    className={`border-b p-3 text-left font-semibold text-emerald-800 whitespace-nowrap ${header.column.columnDef.meta?.headerClassName ?? ""}`}
+                    className={`border-b p-3 text-left font-semibold text-emerald-800 whitespace-nowrap ${
+                      // @ts-expect-error its okay
+                      header.column.columnDef.meta?.headerClassName ?? ""
+                    }`}
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </th>
                 ))}
               </tr>
@@ -543,17 +614,25 @@ export default function DeclarationTable() {
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      // @ts-expect-error its okay
-                      className={`border-b p-3 align-top whitespace-nowrap ${cell.column.columnDef.meta?.cellClassName ?? ""}`}
+                      className={`border-b p-3 align-top whitespace-nowrap ${
+                        // @ts-expect-error its okay
+                        cell.column.columnDef.meta?.cellClassName ?? ""
+                      }`}
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </td>
                   ))}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="p-4 text-center text-muted-foreground">
+                <td
+                  colSpan={columns.length}
+                  className="p-4 text-center text-muted-foreground"
+                >
                   Data tidak ditemukan.
                 </td>
               </tr>
@@ -576,7 +655,8 @@ export default function DeclarationTable() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount() || 1}
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount() || 1}
           </span>
           <Button
             variant="outline"

@@ -4,75 +4,17 @@ import { useMemo, useEffect } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Select from "react-select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
+import { selectTheme, Field, selectStyles } from "./ui";
 import toast from "react-hot-toast";
 import { createDeclaration } from "@/services/declarationServices";
-
-// -------------------
-// Helpers & Styles
-// -------------------
-function Field({
-  label,
-  required,
-  children,
-  error,
-}: {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-  error?: string;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-[15px] font-semibold text-foreground">
-        {label}
-        {required ? <span className="text-emerald-700"> *</span> : null}
-      </Label>
-      {children}
-      {error && <p className="text-sm text-red-600">{error}</p>}
-    </div>
-  );
-}
-
-const selectStyles = {
-  control: (b: any) => ({
-    ...b,
-    minHeight: 44,
-    borderRadius: 8,
-    borderColor: "hsl(var(--input))",
-    background: "hsl(var(--background))",
-    fontSize: "16px",
-  }),
-  valueContainer: (b: any) => ({ ...b, padding: "8px 10px" }),
-  option: (b: any, s: any) => ({
-    ...b,
-    padding: "10px 12px",
-    fontSize: "16px",
-    backgroundColor: s.isFocused
-      ? "rgba(4,120,87,0.12)"
-      : s.isSelected
-      ? "rgba(4,120,87,0.22)"
-      : undefined,
-    color: "inherit",
-  }),
-  menu: (b: any) => ({ ...b, zIndex: 50 }),
-  placeholder: (b: any) => ({ ...b, color: "hsl(var(--muted-foreground))" }),
-};
-
-const selectTheme = (theme: any) => ({
-  ...theme,
-  colors: {
-    ...theme.colors,
-    primary: "#047857",
-    primary25: "rgba(4,120,87,0.12)",
-    primary50: "rgba(4,120,87,0.22)",
-    neutral80: "#0a0a0a",
-  },
+import dynamic from "next/dynamic";
+const Select = dynamic(() => import("react-select"), {
+  ssr: false, // aman untuk komponen client-only
+  loading: () => <div className="h-10 rounded bg-gray-200 animate-pulse" />,
 });
 
 // -------------------
@@ -191,7 +133,6 @@ export default function DeclarationForm({
       });
       toast.success("Declaration berhasil disimpan!");
     } catch (err) {
-      console.error(err);
       toast.error("Gagal menyimpan declaration");
     }
   };
@@ -221,6 +162,9 @@ export default function DeclarationForm({
                     styles={selectStyles}
                     theme={selectTheme}
                     placeholder="Pilih produk"
+                    menuPortalTarget={
+                      typeof window !== "undefined" ? document.body : undefined
+                    }
                   />
                 )}
               />
@@ -236,6 +180,9 @@ export default function DeclarationForm({
                     options={groupOptions}
                     styles={selectStyles}
                     theme={selectTheme}
+                    menuPortalTarget={
+                      typeof window !== "undefined" ? document.body : undefined
+                    }
                   />
                 )}
               />
@@ -253,6 +200,9 @@ export default function DeclarationForm({
                     styles={selectStyles}
                     theme={selectTheme}
                     placeholder="Pilih supplier"
+                    menuPortalTarget={
+                      typeof window !== "undefined" ? document.body : undefined
+                    }
                   />
                 )}
               />
@@ -269,6 +219,9 @@ export default function DeclarationForm({
                     styles={selectStyles}
                     theme={selectTheme}
                     placeholder="Pilih pabrik"
+                    menuPortalTarget={
+                      typeof window !== "undefined" ? document.body : undefined
+                    }
                     onChange={(opt) => {
                       field.onChange(opt);
                       setValue("alamatPabrik", opt?.alamat ?? "");

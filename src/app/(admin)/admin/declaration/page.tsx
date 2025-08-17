@@ -4,7 +4,6 @@ import DeclarationForm from "./DeclarationForm";
 
 export default async function DeclarationPage() {
   const options = await getDeclarationOptions();
-  console.log(options)
   return (
     <div className="p-6">
       <DeclarationForm
