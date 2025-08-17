@@ -20,13 +20,34 @@ enum AccountStatus {
   SUSPENDED
 }
 
+enum SupplierType {
+  INTI
+  PLASMA
+  SWADAYA
+  PIHAK_KETIGA
+  LAINNYA
+}
+
+enum LegalStatus {
+  HGU
+  SHM
+  SKT
+  HGB
+  LAINNYA
+}
+
+enum MapAvailability {
+  TERSEDIA
+  TIDAK
+}
+
 model Account {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
+  id       Int           @id @default(autoincrement())
+  email    String        @unique
   password String
   fullName String
-  role   AccountRole   @default(VIEWER)
-  status AccountStatus @default(INVITED)
+  role     AccountRole   @default(VIEWER)
+  status   AccountStatus @default(INVITED)
 
   clerkId   String?  @unique // diisi saat user login pertama (sinkron Clerk)
   createdAt DateTime @default(now())
@@ -37,12 +58,12 @@ model Account {
 }
 
 model Supplier {
-  id           Int           @id @default(autoincrement())
-  name         String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  products     Product[]
-  declarations Declaration[]
+  id                Int                 @id @default(autoincrement())
+  name              String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  products          Product[]
+  declarations      Declaration[]
 }
 
 model Group {
@@ -100,32 +121,62 @@ model Employee {
 }
 
 model Declaration {
-  id         Int  @id @default(autoincrement())
-  produkId   Int
-  groupId    Int
-  supplierId Int?
-  factoryId  Int
-
-  alamatPabrik String
-  latitude     Float
-  longitude    Float
-
-  kapasitas   String
-  sertifikasi String // Array sertifikasi
-
-  periodeDari   DateTime
-  periodeSampai DateTime
-
+  id               Int      @id @default(autoincrement())
+  produkId         Int
+  groupId          Int
+  supplierId       Int?
+  factoryId        Int
+  alamatPabrik     String
+  latitude         Float
+  longitude        Float
+  kapasitas        String
+  sertifikasi      String
+  periodeDari      DateTime
+  periodeSampai    DateTime
   totalPersenTtp   Float
   tanggalPengisian DateTime
   diisiOleh        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // relations lama
+  produk   ProductGroup @relation(fields: [produkId], references: [id])
+  group    Group        @relation(fields: [groupId], references: [id])
+  supplier Supplier?    @relation(fields: [supplierId], references: [id])
+  factory  Factory      @relation(fields: [factoryId], references: [id])
+
+  // NEW: relasi header -> detail (1..n)
+  details DeclarationDetail[]
+}
+
+model DeclarationDetail {
+  id            Int @id @default(autoincrement())
+  declarationId Int
+
+  // kalau mau pakai master Supplier, boleh simpan id-nya juga
+  namaSupplier String // teks yang tampil di form
+
+  jenisSupplier SupplierType
+  jumlahPetani  Int?
+  alamatKebun   String?
+
+  latitude  Float? // LU/LS → desimal (S = minus)
+  longitude Float? // BT/BB → desimal (W = minus)
+
+  petaKebun MapAvailability?
+  lampiran  Json? // simpan meta file (name, url, size) atau array
+
+  areaHa           Decimal?     @db.Decimal(10, 2)
+  statusLegalitas  LegalStatus?
+  persentaseSuplai Decimal      @db.Decimal(5, 2) // wajib; total semua baris = 100
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // relations
-  produk   ProductGroup @relation(fields: [produkId], references: [id])
-  group    Group        @relation(fields: [groupId], references: [id])
-  supplier Supplier?    @relation(fields: [supplierId], references: [id])
-  factory  Factory      @relation(fields: [factoryId], references: [id])
+  declaration Declaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
+
+
+  @@index([declarationId])
+  @@map("declaration_details")
 }

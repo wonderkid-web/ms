@@ -17,6 +17,29 @@ const Select = dynamic(() => import("react-select"), {
   loading: () => <div className="h-10 rounded bg-gray-200 animate-pulse" />,
 });
 
+import { useFieldArray } from "react-hook-form";
+
+const supplierTypeOptions = [
+  { value: "INTI", label: "Inti" },
+  { value: "PLASMA", label: "Plasma" },
+  { value: "SWADAYA", label: "Swadaya" },
+  { value: "PIHAK_KETIGA", label: "Pihak Ketiga" },
+  { value: "LAINNYA", label: "Lainnya" },
+];
+
+const legalStatusOptions = [
+  { value: "HGU", label: "HGU" },
+  { value: "SHM", label: "SHM" },
+  { value: "SKT", label: "SKT" },
+  { value: "HGB", label: "HGB" },
+  { value: "LAINNYA", label: "Lainnya" },
+];
+
+const mapAvailabilityOptions = [
+  { value: "TERSEDIA", label: "Tersedia" },
+  { value: "TIDAK", label: "Tidak" },
+];
+
 // -------------------
 // Form Schema
 // -------------------
@@ -25,38 +48,82 @@ const optionSchema = z.object({
   label: z.string(),
 });
 
-const schema = z.object({
-  produk: optionSchema,
-  group: optionSchema,
-  supplier: optionSchema.nullable().optional(),
-  pabrik: z
-    .object({
-      value: z.string(),
-      label: z.string(),
-      alamat: z.string(),
-      lat: z.number(),
-      lng: z.number(),
-    })
-    .nullable()
-    .refine((val) => !!val, {
-      message: "Wajib pilih pabrik",
-    }),
-  alamatPabrik: z.string(),
-  latitude: z.coerce.number(),
-  longitude: z.coerce.number(),
-  kapasitas: optionSchema,
-  sertifikasi: z.array(optionSchema).optional(),
-  periodeDari: z.string(),
-  periodeSampai: z.string(),
-  isTahun2024: z.boolean().optional(),
-  totalPersenTtp: z.coerce.number().min(0).max(100),
-  tanggalPengisian: z.string(),
-  diisiOleh: z.string(),
+// detail baris
+const detailSchema = z.object({
+  namaSupplier: z.string().min(1, "Wajib diisi"),
+  jenisSupplier: optionSchema, // pilih dari enum
+  jumlahPetani: z.coerce.number().int().min(0).optional(),
+  alamatKebun: z.string().min(1, "Wajib diisi"),
+  latitude: z
+    .preprocess(
+      (v) => (v === "" || v === null ? undefined : Number(v)),
+      z.number().min(-90).max(90)
+    )
+    .optional(),
+  longitude: z
+    .preprocess(
+      (v) => (v === "" || v === null ? undefined : Number(v)),
+      z.number().min(-180).max(180)
+    )
+    .optional(),
+  petaKebun: optionSchema.nullable().optional(), // Tersedia/Tidak
+  areaHa: z.coerce.number().min(0).optional(),
+  statusLegalitas: optionSchema.nullable().optional(),
+  persentaseSuplai: z.coerce.number().min(0).max(100),
 });
+
+// ----- SKEMA UTAMA (tambahkan 'details' + refine total 100%) -----
+const schema = z
+  .object({
+    // ... field kamu yang sudah ada
+    // (jangan dihapus)
+    produk: optionSchema,
+    group: optionSchema,
+    supplier: optionSchema.nullable().optional(),
+    pabrik: z
+      .object({
+        value: z.string(),
+        label: z.string(),
+        alamat: z.string(),
+        lat: z.number(),
+        lng: z.number(),
+      })
+      .nullable()
+      .refine((val) => !!val, { message: "Wajib pilih pabrik" }),
+    alamatPabrik: z.string(),
+    latitude: z.coerce.number(),
+    longitude: z.coerce.number(),
+    kapasitas: optionSchema,
+    sertifikasi: z.array(optionSchema).optional(),
+    periodeDari: z.string(),
+    periodeSampai: z.string(),
+    isTahun2024: z.boolean().optional(),
+    totalPersenTtp: z.coerce.number().min(0).max(100),
+    tanggalPengisian: z.string(),
+    diisiOleh: z.string(),
+
+    // NEW
+    details: z.array(detailSchema).min(1, "Minimal 1 pemasok"),
+  })
+  .refine(
+    (val) => {
+      const total =
+        val.details?.reduce(
+          (acc, d) => acc + Number(d.persentaseSuplai || 0),
+          0
+        ) ?? 0;
+      return Math.abs(total - 100) < 0.01; // toleransi 0.01
+    },
+    {
+      message: "Total persentase suplai (detail) harus = 100%",
+      path: ["details"],
+    }
+  );
 
 type FormValues = z.infer<typeof schema>;
 type OptionType = { value: string; label: string };
 type PabrikOption = OptionType & { alamat: string; lat: number; lng: number };
+type DetailForm = z.infer<typeof detailSchema>;
 
 // -------------------
 // Component
@@ -82,14 +149,49 @@ export default function DeclarationForm({
     watch,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver<FormValues>(schema), // ✅ kasih generic
+    resolver: zodResolver<FormValues>(schema),
     defaultValues: {
       sertifikasi: [],
       tanggalPengisian: today,
       alamatPabrik: "",
       latitude: 0,
       longitude: 0,
+
+      // NEW: 1 baris kosong
+      details: [
+        {
+          namaSupplier: "",
+          jenisSupplier: supplierTypeOptions[0],
+          jumlahPetani: undefined,
+          alamatKebun: "",
+          latitude: undefined as unknown as number,
+          longitude: undefined as unknown as number,
+          petaKebun: null,
+          areaHa: undefined,
+          statusLegalitas: null,
+          persentaseSuplai: 0,
+        },
+      ],
     },
+  });
+
+  const detailRows = watch("details");
+  const totalDetailPercent = useMemo(
+    () =>
+      (detailRows ?? []).reduce(
+        (acc: number, r: any) => acc + (Number(r?.persentaseSuplai) || 0),
+        0
+      ),
+    [detailRows]
+  );
+
+  useEffect(() => {
+    setValue("totalPersenTtp", Number(totalDetailPercent.toFixed(2)));
+  }, [totalDetailPercent, setValue]);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "details",
   });
 
   const isTahun2024 = watch("isTahun2024");
@@ -116,6 +218,7 @@ export default function DeclarationForm({
   const onSubmit: SubmitHandler<FormValues> = async (v) => {
     try {
       await createDeclaration({
+        // --- header (lama) ---
         produkId: parseInt(v.produk.value),
         groupId: parseInt(v.group.value),
         supplierId: v.supplier ? parseInt(v.supplier.value) : null,
@@ -130,15 +233,29 @@ export default function DeclarationForm({
         totalPersenTtp: v.totalPersenTtp,
         tanggalPengisian: new Date(v.tanggalPengisian),
         diisiOleh: v.diisiOleh,
+
+        // --- NEW: details ---
+        details: v.details.map((d) => ({
+          namaSupplier: d.namaSupplier,
+          jenisSupplier: d.jenisSupplier.value,
+          jumlahPetani: d.jumlahPetani ?? null,
+          alamatKebun: d.alamatKebun,
+          latitude: d.latitude ?? null,
+          longitude: d.longitude ?? null,
+          petaKebun: d.petaKebun?.value ?? null,
+          areaHa: d.areaHa ?? null,
+          statusLegalitas: d.statusLegalitas?.value ?? null,
+          persentaseSuplai: d.persentaseSuplai,
+        })),
       });
-      toast.success("Declaration berhasil disimpan!");
-    } catch (err) {
+      toast.success("Declaration + detail tersimpan!");
+    } catch {
       toast.error("Gagal menyimpan declaration");
     }
   };
 
   return (
-    <div className="mx-auto max-w-3xl rounded-xl border bg-white p-5 shadow-sm md:p-6">
+    <div className=" rounded-xl border bg-white p-5 shadow-sm md:p-6">
       <h1 className="mb-1 text-2xl font-bold text-emerald-800">
         Declaration Form
       </h1>
@@ -349,7 +466,260 @@ export default function DeclarationForm({
           </label>
         </div>
 
+        {/* DETAIL PEMASOK */}
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold text-foreground">
+            Detail Pemasok (TTP)
+          </h2>
+
+          <div className="overflow-x-auto rounded-lg border">
+            <table className="w-full min-w-[1000px] text-sm">
+              <thead className="bg-gray-50">
+                <tr className="text-left">
+                  <th className="p-3">Nama Supplier</th>
+                  <th className="p-3">Jenis Supplier</th>
+                  <th className="p-3">Jumlah Petani</th>
+                  <th className="p-3">Alamat Kebun</th>
+                  <th className="p-3">Lat</th>
+                  <th className="p-3">Lon</th>
+                  <th className="p-3">Peta Kebun</th>
+                  <th className="p-3">Area (HA)</th>
+                  <th className="p-3">Status Legalitas</th>
+                  <th className="p-3">Persen (%)</th>
+                  <th className="p-3">Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {fields.map((f, idx) => (
+                  <tr key={f.id} className="border-t">
+                    {/* Nama Supplier */}
+                    <td className="p-2 align-top">
+                      <Input
+                        placeholder="Nama supplier/kebun"
+                        {...register(`details.${idx}.namaSupplier` as const)}
+                      />
+                      {errors.details?.[idx]?.namaSupplier && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.details[idx]?.namaSupplier?.message as string}
+                        </p>
+                      )}
+                    </td>
+
+                    {/* Jenis Supplier */}
+                    <td className="p-2 align-top min-w-[160px]">
+                      <Controller
+                        control={control}
+                        name={`details.${idx}.jenisSupplier` as const}
+                        render={({ field }) => (
+                          <Select<OptionType, false>
+                            {...field}
+                            options={supplierTypeOptions}
+                            styles={selectStyles}
+                            theme={selectTheme}
+                            placeholder="Pilih jenis"
+                            menuPortalTarget={
+                              typeof window !== "undefined"
+                                ? document.body
+                                : undefined
+                            }
+                          />
+                        )}
+                      />
+                    </td>
+
+                    {/* Jumlah Petani */}
+                    <td className="p-2 align-top">
+                      <Input
+                        type="number"
+                        min={0}
+                        {...register(`details.${idx}.jumlahPetani` as const, {
+                          setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                        })}
+                      />
+                    </td>
+
+                    {/* Alamat Kebun */}
+                    <td className="p-2 align-top min-w-[220px]">
+                      <Textarea
+                        rows={2}
+                        placeholder="Alamat kebun"
+                        {...register(`details.${idx}.alamatKebun` as const)}
+                      />
+                      {errors.details?.[idx]?.alamatKebun && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.details[idx]?.alamatKebun?.message as string}
+                        </p>
+                      )}
+                    </td>
+
+                    {/* Lat */}
+                    <td className="p-2 align-top">
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="-3.25"
+                        {...register(`details.${idx}.latitude` as const, {
+                          setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                        })}
+                      />
+                    </td>
+
+                    {/* Lon */}
+                    <td className="p-2 align-top">
+                      <Input
+                        type="number"
+                        step="any"
+                        placeholder="104.47"
+                        {...register(`details.${idx}.longitude` as const, {
+                          setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                        })}
+                      />
+                    </td>
+
+                    {/* Peta Kebun */}
+                    <td className="p-2 align-top min-w-[150px]">
+                      <Controller
+                        control={control}
+                        name={`details.${idx}.petaKebun` as const}
+                        render={({ field }) => (
+                          <Select<OptionType, false>
+                            {...field}
+                            isClearable
+                            options={mapAvailabilityOptions}
+                            styles={selectStyles}
+                            theme={selectTheme}
+                            placeholder="Pilih"
+                            menuPortalTarget={
+                              typeof window !== "undefined"
+                                ? document.body
+                                : undefined
+                            }
+                          />
+                        )}
+                      />
+                    </td>
+
+                    {/* Area (HA) */}
+                    <td className="p-2 align-top">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        {...register(`details.${idx}.areaHa` as const, {
+                          setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                        })}
+                      />
+                    </td>
+
+                    {/* Status Legalitas */}
+                    <td className="p-2 align-top min-w-[150px]">
+                      <Controller
+                        control={control}
+                        name={`details.${idx}.statusLegalitas` as const}
+                        render={({ field }) => (
+                          <Select<OptionType, false>
+                            {...field}
+                            isClearable
+                            options={legalStatusOptions}
+                            styles={selectStyles}
+                            theme={selectTheme}
+                            placeholder="Pilih"
+                            menuPortalTarget={
+                              typeof window !== "undefined"
+                                ? document.body
+                                : undefined
+                            }
+                          />
+                        )}
+                      />
+                    </td>
+
+                    {/* Persentase */}
+                    <td className="p-2 align-top">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        max={100}
+                        {...register(
+                          `details.${idx}.persentaseSuplai` as const,
+                          {
+                            setValueAs: (v) => (v === "" ? 0 : Number(v)),
+                          }
+                        )}
+                      />
+                      {errors.details?.[idx]?.persentaseSuplai && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {
+                            errors.details[idx]?.persentaseSuplai
+                              ?.message as string
+                          }
+                        </p>
+                      )}
+                    </td>
+
+                    {/* Aksi */}
+                    <td className="p-2 align-top">
+                      <button
+                        type="button"
+                        onClick={() => remove(idx)}
+                        className="text-emerald-700 hover:underline"
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                append({
+                  namaSupplier: "",
+                  jenisSupplier: supplierTypeOptions[0],
+                  jumlahPetani: undefined,
+                  alamatKebun: "",
+                  latitude: undefined as unknown as number,
+                  longitude: undefined as unknown as number,
+                  petaKebun: null,
+                  areaHa: undefined,
+                  statusLegalitas: null,
+                  persentaseSuplai: 0,
+                } as DetailForm)
+              }
+            >
+              Tambah Baris
+            </Button>
+
+            <div className="text-sm">
+              Total Persen Detail:{" "}
+              <span
+                className={
+                  Math.abs(totalDetailPercent - 100) < 0.01
+                    ? "text-emerald-700"
+                    : "text-red-600"
+                }
+              >
+                {totalDetailPercent.toFixed(2)}%
+              </span>
+            </div>
+          </div>
+
+          {errors.details && !Array.isArray(errors.details) && (
+            <p className="text-sm text-red-600">
+              Total persentase detail harus 100%
+            </p>
+          )}
+        </div>
+
         <Separator />
+
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="outline">
             Batal
