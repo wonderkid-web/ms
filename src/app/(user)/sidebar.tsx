@@ -16,10 +16,11 @@ import {
   Truck,
   Group,
   User2,
+  FormInput,
+  User,
 } from "lucide-react";
 import logo from "@/../public/logo.jpeg";
 import Image from "next/image";
-import { SignOutButton } from "@clerk/nextjs";
 import Profile from "./profile";
 
 function NavItem({
@@ -59,7 +60,7 @@ export default function Sidebar() {
           <Image src={logo} alt="logo" className="h-9 w-9 rounded-md" />
         </div>
         <div className="leading-tight">
-          <p className="text-sm font-semibold">Administrator</p>
+          <p className="text-sm font-semibold">Users</p>
           <p className="text-xs text-emerald-100/80">Portal Traceability</p>
         </div>
       </div>
@@ -77,79 +78,18 @@ export default function Sidebar() {
         </p>
         <div className="space-y-1 px-2">
           <NavItem
-            href="/admin/transaction"
-            icon={HandCoins}
-            label="Transaction"
+            href="/user"
+            icon={User}
+            label="User"
           />
           {/* <NavItem href="/admin/trace" icon={RouteIcon} label="Trace" /> */}
           <NavItem
-            href="/admin/declaration"
-            icon={Factory}
-            label="Declaration"
+            href="/user/quisioner"
+            icon={FormInput}
+            label="Quisioner"
           />
         </div>
 
-        <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-emerald-100/70">
-          Report
-        </p>
-        <div className="space-y-1 px-2">
-          <NavItem
-            href="/admin/report/summary-cpo-pk"
-            icon={FileText}
-            label="Summary CPO & PK"
-          />
-          {/* contoh item lain */}
-          <NavItem
-            href="/admin/report/dashboard"
-            icon={BarChart3}
-            label="Dashboard"
-          />
-        </div>
-
-        <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-emerald-100/70">
-          Master Data
-        </p>
-
-        <div className="space-y-1 px-2">
-          <NavItem
-            href="/admin/master-data/produk"
-            icon={Package}
-            label="Produk"
-          />
-          <NavItem href="/admin/master-data/group" icon={Group} label="Group" />
-          <NavItem
-            href="/admin/master-data/user"
-            icon={Users}
-            label="Employee"
-          />
-          <NavItem
-            href="/admin/master-data/factories"
-            icon={Building}
-            label="Factory"
-          />
-          <NavItem
-            href="/admin/master-data/supplier"
-            icon={Truck}
-            label="Supplier"
-          />
-        </div>
-
-        <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-emerald-100/70">
-          Account
-        </p>
-
-        <div className="space-y-1 px-2">
-          <NavItem href="/admin/account" icon={User2} label="User Account" />
-        </div>
-
-        <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-emerald-100/70">
-          Quisioner
-        </p>
-
-        <div className="space-y-1 px-2">
-          <NavItem href="/admin/quisioner/create" icon={User2} label="Create Questioner" />
-          <NavItem href="/admin/quisioner" icon={User2} label="List Quistioner" />
-        </div>
       </ScrollArea>
     </div>
   );

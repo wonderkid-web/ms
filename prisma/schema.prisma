@@ -180,3 +180,91 @@ model DeclarationDetail {
   @@index([declarationId])
   @@map("declaration_details")
 }
+
+/// --- Quisioner module ---
+enum QuisionerStatus {
+  draft
+  published
+}
+
+enum QuestionType {
+  short_text
+  long_text
+  multiple_choice
+  checkbox
+  rating
+  number
+  date
+}
+
+model Quisioner {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String?          @db.Text
+  status      QuisionerStatus  @default(draft)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdBy   String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  questions   Question[]
+  responses   Response[]
+}
+
+model Question {
+  id           Int           @id @default(autoincrement())
+  quisionerId  Int
+  quisioner    Quisioner     @relation(fields: [quisionerId], references: [id], onDelete: Cascade)
+  order        Int           @default(0)
+  title        String
+  type         QuestionType
+  required     Boolean       @default(false)
+  options      Option[]
+  answers      Answer[]
+}
+
+model Option {
+  id          Int       @id @default(autoincrement())
+  questionId  Int
+  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  order       Int       @default(0)
+  label       String
+
+  answerOptions AnswerOption[]
+}
+
+model Response {
+  id           Int         @id @default(autoincrement())
+  quisionerId  Int
+  quisioner    Quisioner   @relation(fields: [quisionerId], references: [id], onDelete: Cascade)
+  respondentId String?
+  submittedAt  DateTime    @default(now())
+  answers      Answer[]
+}
+
+model Answer {
+  id          Int        @id @default(autoincrement())
+  responseId  Int
+  questionId  Int
+  response    Response   @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question    Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  valueText   String?    @db.Text
+  valueNumber Float?
+  valueDate   DateTime?
+  rating      Int?
+
+  selectedOptions AnswerOption[]
+}
+
+model AnswerOption {
+  answerId Int
+  optionId Int
+
+  answer   Answer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  option   Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@id([answerId, optionId])
+}
+
+
