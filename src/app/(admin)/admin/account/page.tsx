@@ -40,7 +40,7 @@ async function createAction(formData: FormData) {
 
 async function deleteAction(id: number) {
   "use server";
-  await deleteAccount(id, { alsoDeleteClerk: false }); // set true jika mau hapus user Clerk juga
+  await deleteAccount(id, { alsoDeleteClerk: true }); // set true jika mau hapus user Clerk juga
   revalidatePath("/admin/account");
 }
 

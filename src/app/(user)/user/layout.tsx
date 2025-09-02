@@ -20,7 +20,7 @@ export default async function AdminLayout({
 
   // 3) Cek role & status di DB (tabel Account)
   const acc = await prisma.account.findUnique({ where: { email } });
-  if (!acc || acc.status === "SUSPENDED" || acc.role !== "ADMIN") {
+  if (!acc || acc.status === "SUSPENDED") {
     redirect("/unauthorized");
   }
 

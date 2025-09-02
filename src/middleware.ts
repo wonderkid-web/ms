@@ -1,29 +1,69 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/"]);
-const isAuthRoute = createRouteMatcher(["/auth(.*)"]);
+// Sesuaikan mapping dashboard per role
+const HOME_BY_ROLE: Record<string, string> = {
+  ADMIN: "/admin/transaction",
+  VIEWER: "/user",
+};
 
-const BASE_PAGE = "/admin/transaction";
+const DEFAULT_HOME = "/user";
+
+const isAdminArea = createRouteMatcher(["/admin(.*)"]);
+const isUserArea = createRouteMatcher(["/user(.*)"]);
+const isAuthArea = createRouteMatcher(["/auth(.*)"]);
+
 export default clerkMiddleware(async (auth, req) => {
+  const { isAuthenticated, sessionClaims } = await auth();
   const url = new URL(req.url);
-  const session = await auth();
 
-  if (isAuthRoute(req)) {
-    if (session.isAuthenticated) {
-      return NextResponse.redirect(new URL(BASE_PAGE, url));
-    }
+  
+  // Ambil role dari session claims (hasil mirror publicMetadata)
+  const role = (sessionClaims as any)?.metadata?.role as string | undefined;
+  const roleHome = (role && HOME_BY_ROLE[role]) || DEFAULT_HOME;
+
+  // 1) Kalau user sudah login & masuk ke halaman auth => lempar ke dashboard sesuai role
+  if (isAuthArea(req) && isAuthenticated) {
+    url.pathname = roleHome;
+    return NextResponse.redirect(url);
   }
 
-  if (isProtectedRoute(req)) await auth.protect();
+  // 2) Root "/" — kalau sudah login, lempar ke dashboard sesuai role.
+  //    Kalau mau root wajib login, ganti "return NextResponse.next()" jadi "await auth.protect()"
+  if (url.pathname === "/") {
+    if (isAuthenticated) {
+      url.pathname = roleHome;
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  // 3) Lindungi area /admin: wajib login & harus role admin
+  if (isAdminArea(req)) {
+    await auth.protect();
+    // pastikan sudah login
+    if (role !== "ADMIN") {
+
+      url.pathname = roleHome;      // non-admin dialihkan
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  // 4) Lindungi area /user: wajib login (role apa pun)
+  if (isUserArea(req)) {
+    await auth.protect();
+    return NextResponse.next();
+  }
+
+  // 5) Rute lain: lanjutkan
+  return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    "/",
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
+    "/",                               // root
+    "/((?!_next|.*\\..*).*)",          // semua page kecuali asset statis
+    "/(api|trpc)(.*)",                 // selalu jalan di API
   ],
 };
