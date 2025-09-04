@@ -1,6 +1,7 @@
 "use server"
 import { createAccountWithClerk, deleteAccount, suspendAccount, activateAccount } from "@/services/accountServices";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 
 export async function createAction(formData: FormData) {
@@ -23,7 +24,6 @@ export async function createAction(formData: FormData) {
 
     try {
         await createAccountWithClerk({ email, password, fullName, company, position, phoneNumber, address, role, status });
-        revalidatePath("/admin/account");
         return { ok: true, message: "Akun berhasil dibuat." };
     } catch (e: any) {
         return { ok: false, message: e?.message || "Gagal membuat akun." };
@@ -32,15 +32,15 @@ export async function createAction(formData: FormData) {
 
 export async function deleteAction(id: number) {
     await deleteAccount(id, { alsoDeleteClerk: true });
-    revalidatePath
+    revalidatePath("/admin/akun");
 }
 
 export async function suspendAction(id: number) {
     await suspendAccount(id);
-    revalidatePath
+    revalidatePath("/admin/akun");
 }
 
 export async function activateAction(id: number) {
     await activateAccount(id);
-    revalidatePath
+    revalidatePath("/admin/akun");
 }

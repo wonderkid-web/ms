@@ -1,35 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import AccountTable from "./accountTable";
-import { deleteAction, suspendAction, activateAction} from "../action/akun"
+import { deleteAction, suspendAction, activateAction } from "../action/akun";
 
 interface Props {
   initialRows: any[];
 }
 
 export default function AccountTableWrapper({ initialRows }: Props) {
-  const [rows, setRows] = useState(initialRows);
+  const router = useRouter();
 
   const handleDelete = async (id: number) => {
     await deleteAction(id);
-    setRows(rows.filter(r => r.id !== id));
+    router.refresh();
   };
 
   const handleSuspend = async (id: number) => {
     await suspendAction(id);
-    // refresh
-    // bisa re-fetch atau update state sesuai kebutuhan
+    router.refresh();
   };
 
   const handleActivate = async (id: number) => {
     await activateAction(id);
-    // refresh
+    router.refresh();
   };
 
   return (
     <AccountTable
-      initialRows={rows}
+      initialRows={initialRows}
       onDelete={handleDelete}
       onSuspend={handleSuspend}
       onActivate={handleActivate}

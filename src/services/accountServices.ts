@@ -4,6 +4,7 @@
 import { prisma } from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import type { AccountRole, AccountStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 /** =====================
  *  Helpers
@@ -79,6 +80,8 @@ export async function createAccountWithClerk(input: {
         password: input.password, // Store hashed password or use Clerk password directly
       },
     });
+
+
     return { account, clerkUserId: clerkUser.id };
   } catch (err) {
     // rollback: hapus user Clerk agar tidak orphan

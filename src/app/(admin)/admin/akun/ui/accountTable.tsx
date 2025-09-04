@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { toWaLink } from '@/helper';
 import Link from 'next/link';
+import { UserIcon } from 'lucide-react';
 
 type Row = {
   id: number;
@@ -32,6 +33,8 @@ export default function AccountTable({
   onActivate: (id: number) => Promise<void>;
 }) {
   const [rows, setRows] = useState<Row[]>(initialRows);
+  
+
 
   const mutate = async (fn: () => Promise<void>, onDone: () => void) => {
     try {
@@ -45,7 +48,7 @@ export default function AccountTable({
 
   return (
     <div className="overflow-x-auto rounded-md border">
-      <table className="min-w-full table-auto border-collapse text-sm">
+      <table className="w-full table-auto border-collapse text-sm">
         <thead className="bg-emerald-50">
           <tr className="text-emerald-900">
             <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Email</th>
@@ -56,7 +59,7 @@ export default function AccountTable({
             <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Address</th>
             <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Role</th>
             <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Status</th>
-            <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Created At</th>
+            {/* <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Created At</th> */}
             <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Aksi</th>
           </tr>
         </thead>
@@ -65,7 +68,7 @@ export default function AccountTable({
           {rows.length ? (
             rows.map((r) => (
               <tr key={r.id} className="hover:bg-emerald-50/40 align-middle">
-                <td className="border-b p-2 whitespace-nowrap max-w-[240px] truncate">{r.email}</td>
+                <td className="border-b p-2 whitespace-nowrap max-w-[240px] truncate flex relative top-3 gap-2 items-center"><UserIcon className='text-emerald-600 w-5 h-5' />{r.email}</td>
                 <td className="border-b p-2 whitespace-nowrap max-w-[200px] truncate">{r.fullName}</td>
                 <td className="border-b p-2 whitespace-nowrap max-w-[200px] truncate">{r.company}</td>
                 <td className="border-b p-2 whitespace-nowrap max-w-[200px] truncate">{r.position}</td>
@@ -101,13 +104,13 @@ export default function AccountTable({
                   </span>
                 </td>
 
-                <td className="border-b p-2 whitespace-nowrap text-muted-foreground">
+                {/* <td className="border-b p-2 whitespace-nowrap text-muted-foreground">
                   {new Date(r.createdAt).toLocaleDateString('id-ID', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                   })}
-                </td>
+                </td> */}
 
                 <td className="border-b p-2">
                   <div className="flex flex-nowrap items-center gap-1">
@@ -174,3 +177,7 @@ export default function AccountTable({
     </div>
   );
 }
+function useEffect(arg0: () => void, arg1: Row[][]) {
+  throw new Error('Function not implemented.');
+}
+

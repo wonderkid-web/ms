@@ -17,8 +17,8 @@ export default function AccountCreateFormDialog() {
 
     const handleCreate = async (formData: FormData) => {
         const res = await createAction(formData);
+        router.refresh();
         if (res?.ok) {
-            router.refresh();
             closeModal();
         }
         return res;
