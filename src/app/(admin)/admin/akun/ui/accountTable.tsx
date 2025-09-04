@@ -1,8 +1,5 @@
 // src/app/(admin)/admin/account/ui/AccountTable.tsx
 'use client';
-
-import { useState } from 'react';
-import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { toWaLink } from '@/helper';
 import Link from 'next/link';
@@ -22,30 +19,16 @@ type Row = {
 };
 
 export default function AccountTable({
-  initialRows,
+  rows, // Terima data dari props
   onDelete,
   onSuspend,
   onActivate,
 }: {
-  initialRows: Row[];
-  onDelete: (id: number) => Promise<void>;
-  onSuspend: (id: number) => Promise<void>;
-  onActivate: (id: number) => Promise<void>;
+  rows: Row[];
+  onDelete: (id: number) => void; // ubah tipe karena tidak lagi mengembalikan Promise
+  onSuspend: (id: number) => void; // ubah tipe
+  onActivate: (id: number) => void; // ubah tipe
 }) {
-  const [rows, setRows] = useState<Row[]>(initialRows);
-  
-
-
-  const mutate = async (fn: () => Promise<void>, onDone: () => void) => {
-    try {
-      await fn();
-      onDone();
-    } catch (e) {
-      console.error(e);
-      toast.error('Aksi gagal.');
-    }
-  };
-
   return (
     <div className="overflow-x-auto rounded-md border">
       <table className="w-full table-auto border-collapse text-sm">
@@ -60,14 +43,14 @@ export default function AccountTable({
             <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Role</th>
             <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Status</th>
             {/* <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Created At</th> */}
-            <th className="border-b p-2 text-left font-semibold whitespace-nowrap">Aksi</th>
+            <th className="border-b p-2 text-center font-semibold whitespace-nowrap">Aksi</th>
           </tr>
         </thead>
-
         <tbody>
-          {rows.length ? (
+          {rows?.length ? (
             rows.map((r) => (
               <tr key={r.id} className="hover:bg-emerald-50/40 align-middle">
+
                 <td className="border-b p-2 whitespace-nowrap max-w-[240px] truncate flex relative top-3 gap-2 items-center"><UserIcon className='text-emerald-600 w-5 h-5' />{r.email}</td>
                 <td className="border-b p-2 whitespace-nowrap max-w-[200px] truncate">{r.fullName}</td>
                 <td className="border-b p-2 whitespace-nowrap max-w-[200px] truncate">{r.company}</td>
@@ -104,14 +87,6 @@ export default function AccountTable({
                   </span>
                 </td>
 
-                {/* <td className="border-b p-2 whitespace-nowrap text-muted-foreground">
-                  {new Date(r.createdAt).toLocaleDateString('id-ID', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </td> */}
-
                 <td className="border-b p-2">
                   <div className="flex flex-nowrap items-center gap-1">
                     {r.status !== 'ACTIVE' && (
@@ -119,13 +94,7 @@ export default function AccountTable({
                         size="sm"
                         variant="outline"
                         className="h-8 border-emerald-500 px-2 text-emerald-700 hover:bg-emerald-50"
-                        onClick={() =>
-                          mutate(() => onActivate(r.id), () =>
-                            setRows((prev) =>
-                              prev.map((x) => (x.id === r.id ? { ...x, status: 'ACTIVE' } : x))
-                            )
-                          )
-                        }
+                        onClick={() => onActivate(r.id)} // Langsung panggil prop
                       >
                         Activate
                       </Button>
@@ -135,13 +104,7 @@ export default function AccountTable({
                         size="sm"
                         variant="outline"
                         className="h-8 border-amber-500 px-2 text-amber-700 hover:bg-amber-50"
-                        onClick={() =>
-                          mutate(() => onSuspend(r.id), () =>
-                            setRows((prev) =>
-                              prev.map((x) => (x.id === r.id ? { ...x, status: 'SUSPENDED' } : x))
-                            )
-                          )
-                        }
+                        onClick={() => onSuspend(r.id)} // Langsung panggil prop
                       >
                         Suspend
                       </Button>
@@ -150,14 +113,7 @@ export default function AccountTable({
                       size="sm"
                       variant="outline"
                       className="h-8 border-red-500 px-2 text-red-600 hover:bg-red-50"
-                      onClick={() =>
-                        mutate(
-                          async () => {
-                            if (confirm('Hapus akun ini?')) await onDelete(r.id);
-                          },
-                          () => setRows((prev) => prev.filter((x) => x.id !== r.id))
-                        )
-                      }
+                      onClick={() => onDelete(r.id)} // Langsung panggil prop
                     >
                       Delete
                     </Button>
@@ -177,7 +133,3 @@ export default function AccountTable({
     </div>
   );
 }
-function useEffect(arg0: () => void, arg1: Row[][]) {
-  throw new Error('Function not implemented.');
-}
-

@@ -81,6 +81,8 @@ export async function createAccountWithClerk(input: {
       },
     });
 
+    revalidatePath('/admin/akun')
+
 
     return { account, clerkUserId: clerkUser.id };
   } catch (err) {
@@ -106,20 +108,7 @@ export async function listAccounts(params?: {
   pageSize?: number;
 }) {
   const { q, role, status, page = 1, pageSize = 20 } = params || {};
-  const where = {
-    AND: [
-      q
-        ? {
-            OR: [
-              { email: { contains: q, mode: "insensitive" } },
-              { fullName: { contains: q, mode: "insensitive" } },
-            ],
-          }
-        : {},
-      role ? { role } : {},
-      status ? { status } : {},
-    ],
-  } as const;
+
 
   const [rows, total] = await Promise.all([
     prisma.account.findMany({

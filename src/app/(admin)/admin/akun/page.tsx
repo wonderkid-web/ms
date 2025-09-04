@@ -1,11 +1,11 @@
-import { listAccounts } from "@/services/accountServices";
 import AccountTableWrapper from "./ui/accountTableWrapper"; // Client wrapper
 import AccountCreateFormWrapper from "./ui/accountCreateFormWrapper"; // Client wrapper
+import { listAccounts } from "@/services/accountServices";
 
-export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const { rows } = await listAccounts({ pageSize: 200 });
+  console.log(rows)
 
   return (
     <main className="p-6 space-y-6">
@@ -18,12 +18,13 @@ export default async function Page() {
 
 
       <div className="rounded-sm border bg-white p-5 shadow-sm grid">
-        <h2 className="mb-3 text-lg font-semibold text-emerald-900">
-          Daftar Akun
-        </h2>
+        <div className="flex justify-between">
+          <h2 className="text-lg font-semibold text-emerald-900">
+            Daftar Akun
+          </h2>
+          <AccountCreateFormWrapper />
+        </div>
 
-        {/* Modal + Form */}
-        <AccountCreateFormWrapper />
 
         {/* Table */}
         <AccountTableWrapper initialRows={rows} />

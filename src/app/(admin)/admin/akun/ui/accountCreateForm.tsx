@@ -17,6 +17,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function AccountCreateForm({
   action,
@@ -40,6 +41,7 @@ export default function AccountCreateForm({
 
   // regex: harus mulai 08, total 10-13 digit (maks 13)
   const phoneRegex = /^08\d{8,11}$/;
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,11 +67,17 @@ export default function AccountCreateForm({
     formData.append("role", role);
     formData.append("status", status);
 
-    const result = await action(formData);
-    setMessage(result.message);
-    router.refresh()
-    if (result.ok) {
-      closeModal();
+    try {
+      const result = await action(formData);
+
+      setMessage(result.message);
+      toast.success("Berhasil menambahkan user.")
+      router.refresh()
+      if (result.ok) {
+        closeModal();
+      }
+    } catch (error) {
+      toast.error("Gagal menambahkan akun.")
     }
   };
 
