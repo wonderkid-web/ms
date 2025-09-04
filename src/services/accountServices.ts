@@ -28,6 +28,10 @@ export async function createAccountWithClerk(input: {
   email: string;
   password: string; // ditentukan admin
   fullName: string;
+  company: string;
+  position: string;
+  phoneNumber: string;
+  address: string;
   role?: AccountRole; // default VIEWER
   status?: AccountStatus; // default ACTIVE (karena sudah set password)
 }) {
@@ -65,10 +69,14 @@ export async function createAccountWithClerk(input: {
       data: {
         email,
         fullName: input.fullName,
+        company: input.company,  // Add company
+        position: input.position,  // Add position
+        phoneNumber: input.phoneNumber,  // Add phoneNumber
+        address: input.address,  // Add address
         role,
         status, // ACTIVE / INVITED / SUSPENDED (default ACTIVE)
         clerkId: clerkUser.id,
-        password: input.password,
+        password: input.password, // Store hashed password or use Clerk password directly
       },
     });
     return { account, clerkUserId: clerkUser.id };
@@ -82,6 +90,7 @@ export async function createAccountWithClerk(input: {
     throw err;
   }
 }
+
 
 /** =====================
  *  READ (list / by id / by email)

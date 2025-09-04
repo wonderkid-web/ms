@@ -9,8 +9,6 @@ datasource db {
 
 enum AccountRole {
   ADMIN
-  MANAGER
-  STAFF
   VIEWER
 }
 
@@ -42,12 +40,16 @@ enum MapAvailability {
 }
 
 model Account {
-  id       Int           @id @default(autoincrement())
-  email    String        @unique
-  password String
-  fullName String
-  role     AccountRole   @default(VIEWER)
-  status   AccountStatus @default(INVITED)
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  password    String
+  fullName    String
+  company     String
+  position    String
+  phoneNumber String
+  address     String
+  role        AccountRole   @default(VIEWER)
+  status      AccountStatus @default(INVITED)
 
   clerkId   String?  @unique // diisi saat user login pertama (sinkron Clerk)
   createdAt DateTime @default(now())
@@ -58,12 +60,12 @@ model Account {
 }
 
 model Supplier {
-  id                Int                 @id @default(autoincrement())
-  name              String
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  products          Product[]
-  declarations      Declaration[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  products     Product[]
+  declarations Declaration[]
 }
 
 model Group {
@@ -176,7 +178,6 @@ model DeclarationDetail {
   // relations
   declaration Declaration @relation(fields: [declarationId], references: [id], onDelete: Cascade)
 
-
   @@index([declarationId])
   @@map("declaration_details")
 }
@@ -198,58 +199,58 @@ enum QuestionType {
 }
 
 model Quisioner {
-  id          Int              @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   title       String
-  description String?          @db.Text
-  status      QuisionerStatus  @default(draft)
+  description String?         @db.Text
+  status      QuisionerStatus @default(draft)
   startDate   DateTime?
   endDate     DateTime?
   createdBy   String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  questions   Question[]
-  responses   Response[]
+  questions Question[]
+  responses Response[]
 }
 
 model Question {
-  id           Int           @id @default(autoincrement())
-  quisionerId  Int
-  quisioner    Quisioner     @relation(fields: [quisionerId], references: [id], onDelete: Cascade)
-  order        Int           @default(0)
-  title        String
-  type         QuestionType
-  required     Boolean       @default(false)
-  options      Option[]
-  answers      Answer[]
+  id          Int          @id @default(autoincrement())
+  quisionerId Int
+  quisioner   Quisioner    @relation(fields: [quisionerId], references: [id], onDelete: Cascade)
+  order       Int          @default(0)
+  title       String
+  type        QuestionType
+  required    Boolean      @default(false)
+  options     Option[]
+  answers     Answer[]
 }
 
 model Option {
-  id          Int       @id @default(autoincrement())
-  questionId  Int
-  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  order       Int       @default(0)
-  label       String
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  order      Int      @default(0)
+  label      String
 
   answerOptions AnswerOption[]
 }
 
 model Response {
-  id           Int         @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   quisionerId  Int
-  quisioner    Quisioner   @relation(fields: [quisionerId], references: [id], onDelete: Cascade)
+  quisioner    Quisioner @relation(fields: [quisionerId], references: [id], onDelete: Cascade)
   respondentId String?
-  submittedAt  DateTime    @default(now())
+  submittedAt  DateTime  @default(now())
   answers      Answer[]
 }
 
 model Answer {
-  id          Int        @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   responseId  Int
   questionId  Int
-  response    Response   @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  question    Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  valueText   String?    @db.Text
+  response    Response  @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  valueText   String?   @db.Text
   valueNumber Float?
   valueDate   DateTime?
   rating      Int?
@@ -261,10 +262,8 @@ model AnswerOption {
   answerId Int
   optionId Int
 
-  answer   Answer @relation(fields: [answerId], references: [id], onDelete: Cascade)
-  option   Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  answer Answer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  option Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
 
   @@id([answerId, optionId])
 }
-
-

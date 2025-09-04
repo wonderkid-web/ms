@@ -139,7 +139,7 @@ export default function Sidebar() {
         </p>
 
         <div className="space-y-1 px-2">
-          <NavItem href="/admin/account" icon={User2} label="User Account" />
+          <NavItem href="/admin/akun" icon={User2} label="User Account" />
         </div>
 
         <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-emerald-100/70">
