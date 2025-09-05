@@ -43,7 +43,8 @@ html {
           </header> */}
         <body>
           {children}
-          <Toaster position="top-center" reverseOrder={false} />
+          <Toaster position="bottom-right" reverseOrder={false} 
+          />
         </body>
       </html>
     </ClerkProvider>

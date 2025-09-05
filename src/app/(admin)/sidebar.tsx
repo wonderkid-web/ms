@@ -114,7 +114,7 @@ export default function Sidebar() {
           <NavItem
             href="/admin/master-data/produk"
             icon={Package}
-            label="Produk"
+            label="Product"
           />
           <NavItem href="/admin/master-data/group" icon={Group} label="Group" />
           <NavItem

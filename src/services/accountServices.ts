@@ -137,8 +137,14 @@ export async function getAccountByEmail(email: string) {
  *  ===================== */
 export async function updateAccount(
   id: number,
-  data: Partial<{ fullName: string; role: AccountRole; status: AccountStatus }>
+  data: Partial<{ fullName: string; role: AccountRole; status: AccountStatus, email: string, password: string, company: string, position: string, phoneNumber: string, address: string }>
 ) {
+
+  const client = await clerkClient();
+  const acc = await prisma.account.findUnique({ where: { id } });
+  if (!acc?.clerkId) throw new Error("Akun tidak terhubung ke Clerk.");
+  await client.users.updateUser(acc.clerkId, { password: data.password, firstName: data.fullName, publicMetadata: { AccountRole: data.role, AccountStatus: data.status } });
+
   return prisma.account.update({ where: { id }, data });
 }
 
@@ -149,7 +155,8 @@ export async function resetAccountPassword(id: number, newPassword: string) {
   const client = await clerkClient();
   const acc = await prisma.account.findUnique({ where: { id } });
   if (!acc?.clerkId) throw new Error("Akun tidak terhubung ke Clerk.");
-  await client.users.updateUser(acc.clerkId, { password: newPassword });
+
+  await client.users.updateUser(acc.clerkId, { password: newPassword, });
   return { ok: true };
 }
 
@@ -188,6 +195,7 @@ export async function deleteAccount(
   if (opts?.alsoDeleteClerk && acc.clerkId) {
     try {
       await client.users.deleteUser(acc.clerkId);
+      revalidatePath('/admin/akun')
     } catch (e) {
       // kalau gagal hapus clerk, akun DB sudah terhapus—log saja
       console.error("Gagal hapus user Clerk:", e);

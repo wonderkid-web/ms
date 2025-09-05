@@ -1,22 +1,24 @@
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { Button } from "@/components/ui/button";
-import AccountCreateForm from "./accountCreateForm";
-import { createAction } from "../action/akun";
-import { UserPlus } from "lucide-react";
+import AccountUpdateForm from "./accountUpdateForm";
+import { updateAction } from "../action/akun";
+import { FilePen } from "lucide-react";
+import { Account } from "@prisma/client";
 
-export default function AccountCreateFormDialog() {
+export default function AccountUpdateFormDialog({ account }: { account: Account }) {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
     const openModal = () => setOpen(true);
     const closeModal = () => setOpen(false);
 
-    const handleCreate = async (formData: FormData) => {
-        const res = await createAction(formData);
+    const handleUpdate = async (formData: FormData) => {
+        const res = await updateAction(account.id, formData);
         router.refresh();
         if (res?.ok) {
             closeModal();
@@ -27,12 +29,12 @@ export default function AccountCreateFormDialog() {
     return (
         <div className="flex">
             <Button
-                variant="outline"
-                className="border-green-500 mb-3 text-green-700 hover:bg-green-50 flex gap-2 ml-auto"
+                size={"sm"}
+                variant={"outline"}
+                className="h-8 border-blue-500 px-2 text-blue-700 hover:bg-blue-50"
                 onClick={openModal}
             >
-                <UserPlus />
-                Create New Account
+                <FilePen />
             </Button>
 
             <Dialog open={open} onClose={closeModal} className="relative z-50">
@@ -50,21 +52,24 @@ export default function AccountCreateFormDialog() {
                     >
                         <div className="flex items-center justify-between">
                             <DialogTitle className="text-lg font-semibold text-emerald-900">
-                                Create New Account
+                                Update Account
                             </DialogTitle>
                             <button
                                 onClick={closeModal}
                                 className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100"
-                                aria-label="Tutup"
-                                title="Tutup"
+                                aria-label="Close"
+                                title="Close"
                             >
                                 ✕
                             </button>
                         </div>
 
                         <div className="mt-4">
-                            {/* Form sudah disesuaikan dengan schema Account */}
-                            <AccountCreateForm action={handleCreate} closeModal={closeModal} />
+                            <AccountUpdateForm
+                                action={handleUpdate}
+                                closeModal={closeModal}
+                                account={account}
+                            />
                         </div>
                     </DialogPanel>
                 </div>

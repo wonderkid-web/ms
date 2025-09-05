@@ -1,4 +1,4 @@
-// src/app/(admin)/admin/account/ui/accountCreateForm.tsx
+// src/app/(admin)/admin/account/ui/accountUpdateForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -17,26 +17,28 @@ import {
   BadgeCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
+import { Account } from "@prisma/client";
 
-export default function AccountCreateForm({
+export default function AccountUpdateForm({
   action,
   closeModal,
+  account,
 }: {
   action: (formData: FormData) => Promise<{ ok: boolean; message: string }>;
   closeModal: () => void;
+  account: Account;
 }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(account.email);
+  const [password, setPassword] = useState(account.password);
   const [showPwd, setShowPwd] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [company, setCompany] = useState("");
-  const [position, setPosition] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [address, setAddress] = useState("");
-  const [role, setRole] = useState("VIEWER");
-  const [status, setStatus] = useState("ACTIVE");
+  const [fullName, setFullName] = useState(account.fullName);
+  const [company, setCompany] = useState(account.company);
+  const [position, setPosition] = useState(account.position);
+  const [phoneNumber, setPhoneNumber] = useState(account.phoneNumber);
+  const [address, setAddress] = useState(account.address);
+  const [role, setRole] = useState(account.role);
+  const [status, setStatus] = useState(account.status);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -49,18 +51,20 @@ export default function AccountCreateForm({
     e.preventDefault();
 
     // Client-side validations
-    if (password.length < 7) {
-      setMessage("Password minimal 7 karakter.");
+    if (password && password.length < 7) {
+      setMessage("Password must be at least 7 characters.");
       return;
     }
     if (!phoneRegex.test(phoneNumber)) {
-      setMessage("Nomor HP harus diawali '08' dan maksimal 13 digit (hanya angka).");
+      setMessage("Phone number must start with '08' and be a maximum of 13 digits (numbers only).");
       return;
     }
 
     const formData = new FormData();
     formData.append("email", email.trim().toLowerCase());
-    formData.append("password", password);
+    if (password) {
+      formData.append("password", password);
+    }
     formData.append("fullName", fullName);
     formData.append("company", company);
     formData.append("position", position);
@@ -74,7 +78,7 @@ export default function AccountCreateForm({
       const result = await action(formData);
 
       setMessage(result.message);
-      showSuccessToast("Akun berhasil dibuat.");
+      showSuccessToast("Account updated successfully.");
 
       setLoading(false)
       router.refresh()
@@ -82,7 +86,7 @@ export default function AccountCreateForm({
         closeModal();
       }
     } catch (error) {
-      showErrorToast("Tidak dapat terhubung ke server. Coba lagi.")
+      showErrorToast("Could not connect to the server. Try again.")
     }
   };
 
@@ -91,6 +95,9 @@ export default function AccountCreateForm({
     const digits = v.replace(/\D/g, "").slice(0, 13);
     setPhoneNumber(digits);
   };
+
+  type RoleType = "VIEWER" | "ADMIN"
+  type StatusType = "INVITED" | "ACTIVE" | "SUSPENDED"
 
   return (
     <div className="max-h-[70vh] overflow-y-auto pr-1">
@@ -120,9 +127,9 @@ export default function AccountCreateForm({
           </div>
         </div>
 
-        {/* Nama Lengkap */}
+        {/* Full Name */}
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Nama Lengkap</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Full Name</label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <User size={18} />
@@ -158,9 +165,9 @@ export default function AccountCreateForm({
           </div>
         </div>
 
-        {/* Nomor HP */}
+        {/* Phone Number */}
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Nomor HP</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Phone Number</label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <Phone size={18} />
@@ -173,17 +180,17 @@ export default function AccountCreateForm({
               maxLength={13}
               value={phoneNumber}
               onChange={(e) => handlePhoneChange(e.target.value)}
-              title="Harus diawali 08, total 10–13 digit."
+              title="Must start with 08, total 10-13 digits."
               className="w-full rounded-lg border border-gray-300 bg-white p-2 pl-9 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
               placeholder="08xxxxxxxxxx"
             />
           </div>
-          <p className="mt-1 text-xs text-gray-500">Wajib diawali 08, maksimal 13 digit.</p>
+          <p className="mt-1 text-xs text-gray-500">Must start with 08, maximum 13 digits.</p>
         </div>
 
-        {/* Alamat */}
+        {/* Address */}
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Alamat</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">Address</label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-2.5 text-gray-400">
               <MapPin size={18} />
@@ -228,25 +235,24 @@ export default function AccountCreateForm({
             </span>
             <input
               type={showPwd ? "text" : "password"}
-              required
               minLength={7}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
               className="w-full rounded-lg border border-gray-300 bg-white p-2 pl-9 pr-10 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
-              placeholder="Min. 7 karakter"
+              placeholder="Leave blank to keep current password"
             />
             <button
               type="button"
               onClick={() => setShowPwd((s) => !s)}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-500 hover:bg-gray-100"
-              aria-label={showPwd ? "Sembunyikan password" : "Tampilkan password"}
-              title={showPwd ? "Sembunyikan" : "Tampilkan"}
+              aria-label={showPwd ? "Hide password" : "Show password"}
+              title={showPwd ? "Hide" : "Show"}
             >
               {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          <p className="mt-1 text-xs text-gray-500">Minimal 7 karakter.</p>
+          <p className="mt-1 text-xs text-gray-500">Leave blank to keep current password. Minimal 7 characters.</p>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -259,7 +265,7 @@ export default function AccountCreateForm({
               </span>
               <select
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={(e) => setRole(e.target.value as RoleType)}
                 className="w-full appearance-none rounded-lg border border-gray-300 bg-white p-2 pl-9 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
               >
                 <option value="ADMIN">Administrator</option>
@@ -279,7 +285,7 @@ export default function AccountCreateForm({
               </span>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => setStatus(e.target.value as StatusType)}
                 className="w-full appearance-none rounded-lg border border-gray-300 bg-white p-2 pl-9 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
               >
                 <option value="ACTIVE">Active</option>
@@ -296,11 +302,11 @@ export default function AccountCreateForm({
             onClick={closeModal}
             className="border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50"
           >
-            Batal
+            Cancel
           </Button>
           <Button type="submit" disabled={loading} className={`${loading ? "bg-emerald-400" : "bg-emerald-500"} text-white hover:bg-emerald-600`}>
             {loading && <div className="h-5 w-5 border-3 border-t-transparent border-b-transparent border-emerald-300 rounded-full animate-spin" />}
-            {loading ? "Adding..." : "Save"}
+            {loading ? "Updating..." : "Update"}
           </Button>
         </div>
       </form>
