@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import QuestionBuilder from "@/components/quisioner/QuestionBuilder";
+import { Save } from "lucide-react";
 
 export default function CreateQuisionerPage() {
   const router = useRouter();
@@ -52,7 +53,11 @@ export default function CreateQuisionerPage() {
         <h1 className="text-xl font-semibold tracking-tight">Create Quisioner</h1>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => router.back()}>Batal</Button>
-          <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>Simpan</Button>
+          <Button
+            variant="outline"
+            className="border-green-600 text-white mb-3 bg-green-600 hover:bg-green-700 hover:text-white flex gap-2 ml-auto"
+            onClick={handleSubmit(onSubmit)} disabled={isSubmitting}><Save /> Simpan</Button>
+
         </div>
       </div>
 
@@ -72,7 +77,7 @@ export default function CreateQuisionerPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <Label className="mb-1 block">Status</Label>
-                <Select value={watch("status")} onValueChange={(v: "draft"|"published") => setValue("status", v)}>
+                <Select value={watch("status")} onValueChange={(v: "draft" | "published") => setValue("status", v)}>
                   <SelectTrigger><SelectValue placeholder="Pilih status" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>

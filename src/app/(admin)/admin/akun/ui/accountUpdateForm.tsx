@@ -100,7 +100,7 @@ export default function AccountUpdateForm({
   type StatusType = "INVITED" | "ACTIVE" | "SUSPENDED"
 
   return (
-    <div className="max-h-[70vh] overflow-y-auto pr-1">
+    <div className="max-h-[75vh] overflow-y-auto pr-1">
       <form onSubmit={handleSubmit} className="space-y-4">
         {message && (
           <div className="rounded-md border border-amber-300 bg-amber-50 p-2 text-sm text-amber-800">

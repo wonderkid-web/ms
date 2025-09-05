@@ -150,7 +150,7 @@ export default function QuestionBuilder({ value, onChange }: Props) {
       })}
 
       <div className="pt-2">
-        <Button type="button" onClick={addQuestion}>
+        <Button className="bg-emerald-500 hover:bg-emerald-600 text-white" type="button" onClick={addQuestion}>
           <Plus className="mr-2 size-4" /> Tambah pertanyaan
         </Button>
       </div>

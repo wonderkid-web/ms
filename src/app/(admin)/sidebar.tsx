@@ -16,6 +16,8 @@ import {
   Truck,
   Group,
   User2,
+  Paperclip,
+  ListChecks,
 } from "lucide-react";
 import logo from "@/../public/logo.jpeg";
 import Image from "next/image";
@@ -147,8 +149,8 @@ export default function Sidebar() {
         </p>
 
         <div className="space-y-1 px-2">
-          <NavItem href="/admin/quisioner/create" icon={User2} label="Create Questioner" />
-          <NavItem href="/admin/quisioner" icon={User2} label="List Quistioner" />
+          <NavItem href="/admin/quisioner/create" icon={Paperclip} label="Create Questioner" />
+          <NavItem href="/admin/quisioner" icon={ListChecks} label="List Quistioner" />
         </div>
       </ScrollArea>
     </div>
