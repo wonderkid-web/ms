@@ -2,20 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  HandCoins,
-  Factory,
-  FileText,
-  BarChart3,
-  Package,
-  Users,
-  Building,
-  Truck,
-  Group,
-  User2,
   FormInput,
   User,
 } from "lucide-react";
@@ -77,11 +66,11 @@ export default function Sidebar() {
           Transaction
         </p>
         <div className="space-y-1 px-2">
-          <NavItem
+          {/* <NavItem
             href="/user"
             icon={User}
             label="User"
-          />
+          /> */}
           {/* <NavItem href="/admin/trace" icon={RouteIcon} label="Trace" /> */}
           <NavItem
             href="/user/quisioner"

@@ -55,3 +55,117 @@ export function SilkTableLoaderRow({ colSpan, message = "Loading Data... ⏳" }:
     </tr>
   );
 }
+
+
+
+/* ------- Reusable components ------- */
+function LoaderBar() {
+  return (
+    <>
+      <div className="fixed inset-x-0 top-0 z-50 h-1 overflow-hidden bg-emerald-500/10">
+        <div className="h-full w-1/5 bg-emerald-500/90 animate-[slide_1.2s_ease-in-out_infinite]" />
+      </div>
+      <style jsx>{`
+        @keyframes slide {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(60%); }
+          100% { transform: translateX(120%); }
+        }
+      `}</style>
+    </>
+  );
+}
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={
+        "relative overflow-hidden rounded-xl bg-neutral-200/70 dark:bg-neutral-800/60 " +
+        className
+      }
+    >
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-[linear-gradient(90deg,transparent,rgba(16,185,129,0.15),transparent)]" />
+      <style jsx>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ------- Page skeleton ------- */
+export function LoadingQuisioner() {
+  return (
+    <div className="min-h-[70vh] w-full rounded-2xl border border-emerald-700/20 bg-white/70 p-4 backdrop-blur dark:bg-neutral-900/70">
+      <LoaderBar />
+
+      {/* Header */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-6 w-56" />
+            <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="flex w-full gap-2 sm:w-auto">
+          <Skeleton className="h-10 w-full sm:w-64" />  {/* search */}
+          <Skeleton className="h-10 w-28" />            {/* tombol buat */}
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl border border-neutral-200/60 dark:border-neutral-800">
+        <table className="w-max min-w-[1000px] table-auto">
+          <thead className="bg-neutral-50/60 dark:bg-neutral-800/60">
+            <tr className="text-left text-sm">
+              {["Judul", "Status", "Periode", "Respon", "Terakhir Update", "Aksi"].map((h) => (
+                <th key={h} className="p-3 font-medium text-neutral-700 dark:text-neutral-200">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="text-sm">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <tr key={i} className="border-t border-neutral-200/60 dark:border-neutral-800">
+                <td className="p-3">
+                  <Skeleton className="h-4 w-[320px]" />
+                  <div className="mt-2"><Skeleton className="h-3 w-40" /></div>
+                </td>
+                <td className="p-3">
+                  <div className="inline-flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </td>
+                <td className="p-3"><Skeleton className="h-4 w-36" /></td>
+                <td className="p-3"><Skeleton className="h-4 w-16" /></td>
+                <td className="p-3"><Skeleton className="h-4 w-40" /></td>
+                <td className="p-3">
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-16" />
+                    <Skeleton className="h-8 w-16" />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Footer total/progress */}
+      <div className="mt-4">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-emerald-500/60" />
+        </div>
+        <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+          <span>Memuat daftar quisioner…</span>
+          <span className="text-emerald-600 dark:text-emerald-400">UI silky • emerald</span>
+        </div>
+      </div>
+    </div>
+  );
+}
