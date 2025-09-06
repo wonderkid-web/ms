@@ -763,9 +763,9 @@ export default function DeclarationForm({
         <Separator />
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="outline">
+          {/* <Button type="button" variant="outline">
             Batal
-          </Button>
+          </Button> */}
           <Button type="submit" className="bg-emerald-700 hover:bg-emerald-800">
             {declaration ? "Update" : "Simpan"}
           </Button>

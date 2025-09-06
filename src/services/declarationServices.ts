@@ -58,6 +58,7 @@ export async function getDeclarations() {
         group: true,
         supplier: true,
         factory: true,
+        details: true,
       },
       orderBy: { createdAt: "desc" },
     });
