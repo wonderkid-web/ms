@@ -14,6 +14,7 @@ import {
   updateFactory,
   deleteFactory,
 } from "@/services/factoryService";
+import { PlusSquare } from "lucide-react";
 
 type Factory = {
   id: number;
@@ -132,9 +133,9 @@ export default function FactoriesPage() {
             setForm(defaultForm);
             setShowModal(true);
           }}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded flex gap-2"
         >
-          Add New
+          <PlusSquare /> Add New
         </button>
       </div>
 

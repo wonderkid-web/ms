@@ -25,7 +25,7 @@ export function RowDetail({
 
   if (!cache || cache.loading)
     return (
-      <div className="p-4 text-sm text-muted-foreground">Memuat detail…</div>
+      <div className="p-4 text-sm text-muted-foreground text-center">Memuat detail...⏳</div>
     );
   if (cache.error)
     return (

@@ -127,6 +127,52 @@ export async function deleteDeclaration(id: number) {
   }
 }
 
+export async function updateDeclaration(id: number, input: CreateDeclarationInput) {
+  const total = input.details.reduce(
+    (a, d) => a + Number(d.persentaseSuplai || 0),
+    0
+  );
+  if (Math.abs(total - 100) > 0.01) {
+    throw new Error("Total Persentase Suplai harus = 100%");
+  }
+
+  await prisma.declaration.update({
+    where: { id },
+    data: {
+      produkId: input.produkId,
+      groupId: input.groupId,
+      supplierId: input.supplierId,
+      factoryId: input.factoryId,
+      alamatPabrik: input.alamatPabrik,
+      latitude: input.latitude,
+      longitude: input.longitude,
+      kapasitas: input.kapasitas,
+      sertifikasi: input.sertifikasi,
+      periodeDari: input.periodeDari,
+      periodeSampai: input.periodeSampai,
+      totalPersenTtp: input.totalPersenTtp,
+      tanggalPengisian: input.tanggalPengisian,
+      diisiOleh: input.diisiOleh,
+      details: {
+        deleteMany: {},
+        create: input.details.map((d) => ({
+          namaSupplier: d.namaSupplier,
+          jenisSupplier: d.jenisSupplier,
+          jumlahPetani: d.jumlahPetani ?? null,
+          alamatKebun: d.alamatKebun ?? null,
+          latitude: d.latitude ?? null,
+          longitude: d.longitude ?? null,
+          petaKebun: d.petaKebun ?? null,
+          lampiran: undefined, // nanti isi kalau ada upload
+          areaHa: d.areaHa != null ? new Prisma.Decimal(d.areaHa) : null,
+          statusLegalitas: d.statusLegalitas ?? null,
+          persentaseSuplai: new Prisma.Decimal(d.persentaseSuplai),
+        })),
+      },
+    },
+  });
+}
+
 
 /** Helper aman untuk Prisma.Decimal -> number */
 function toNum(v: unknown): number | null {
@@ -156,8 +202,6 @@ export async function getDeclarationDetails(
     where: { declarationId },
     orderBy: { id: "asc" },
   });
-
-  console.log(rows)
 
   return rows.map((r) => ({
     id: r.id,

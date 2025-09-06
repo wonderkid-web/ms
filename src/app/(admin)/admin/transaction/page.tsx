@@ -244,6 +244,7 @@ export default function DeclarationTable() {
       <h1 className="text-2xl font-semibold mb-2 text-emerald-800">
         Table Transaction
       </h1>
+      
       <FilterBar
         fProduk={fProduk}
         setFProduk={setFProduk}

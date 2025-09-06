@@ -4,6 +4,7 @@ import { flexRender, Table } from "@tanstack/react-table";
 import { DeclarationRow } from "./types";
 import { RowDetail } from "./RowDetail";
 import { DeclarationDetail } from "@/services/declarationServices";
+import { SilkTableLoaderRow } from "@/components/loader/index";
 
 interface TransactionTableProps {
   table: Table<DeclarationRow>;
@@ -30,7 +31,7 @@ export function TransactionTable({
                   className={`border-b p-3 text-left font-semibold text-emerald-800 whitespace-nowrap ${
                     // @ts-expect-error custom meta
                     header.column.columnDef.meta?.headerClassName ?? ""
-                  }`}
+                    }`}
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -44,14 +45,8 @@ export function TransactionTable({
 
         <tbody>
           {loading ? (
-            <tr>
-              <td
-                colSpan={table.getVisibleLeafColumns().length}
-                className="p-4 text-center"
-              >
-                Loading…
-              </td>
-            </tr>
+            <SilkTableLoaderRow colSpan={table.getVisibleLeafColumns().length} />
+
           ) : table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <React.Fragment key={row.id}>
@@ -62,7 +57,7 @@ export function TransactionTable({
                       className={`border-b p-3 align-top whitespace-nowrap ${
                         // @ts-expect-error custom meta
                         cell.column.columnDef.meta?.cellClassName ?? ""
-                      }`}
+                        }`}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

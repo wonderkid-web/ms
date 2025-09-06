@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from "@/services/supplierServices";
+import { Factory, Network, Superscript } from "lucide-react";
 
 type Supplier = {
   id: number;
@@ -98,9 +99,9 @@ export default function SuppliersPage() {
             setForm({ name: "" });
             setShowModal(true);
           }}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded flex gap-2"
         >
-          Add New
+          <Network /> Add New
         </button>
       </div>
 

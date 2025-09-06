@@ -17,7 +17,7 @@ export function Pagination({
 }: PaginationProps) {
   return (
     <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 md:ml-auto">
         <Button
           variant="outline"
           onClick={() => table.previousPage()}
@@ -26,8 +26,6 @@ export function Pagination({
         >
           Prev
         </Button>
-      </div>
-      <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}

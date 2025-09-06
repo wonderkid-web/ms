@@ -14,6 +14,7 @@ import {
   updateGroup,
   deleteGroup,
 } from "@/services/groupServices";
+import { Group } from "lucide-react";
 
 type Group = {
   id: number;
@@ -29,7 +30,7 @@ export default function GroupsPage() {
   async function loadData() {
     try {
       const res = await getGroups();
-      console.log(res)
+
       setData(res);
     } catch (error) {
       toast.error("Gagal Mengambil Data " + error);
@@ -119,9 +120,9 @@ export default function GroupsPage() {
             setForm({ name: "" });
             setShowModal(true);
           }}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded flex gap-2"
         >
-          Add New
+          <Group /> Add New
         </button>
       </div>
 

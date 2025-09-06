@@ -28,7 +28,7 @@ export default function TracePage() {
   } = useForm<TraceEventFormInputs>();
 
   const onSubmit: SubmitHandler<TraceEventFormInputs> = (data) => {
-    console.log(data);
+    ;
     alert("Form submitted! Check console for data.");
   };
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { getProductGroups, createProductGroup, updateProductGroup, deleteProductGroup } from "@/services/productGroupService";
+import { LucideFactory } from "lucide-react";
 
 type ProductGroup = {
   id: number;
@@ -98,9 +99,9 @@ export default function ProductGroupsPage() {
             setForm({ name: "" });
             setShowModal(true);
           }}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded flex gap-2"
         >
-          Add New
+          <LucideFactory /> Add New
         </button>
       </div>
 

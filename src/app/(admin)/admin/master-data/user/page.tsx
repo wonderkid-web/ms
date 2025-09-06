@@ -14,6 +14,7 @@ import {
   deleteEmployee,
 } from "@/services/employeeServices";
 import toast from "react-hot-toast";
+import { User, UserCircle } from "lucide-react";
 
 type User = {
   id: number;
@@ -173,9 +174,9 @@ export default function UsersPage() {
             });
             setShowModal(true);
           }}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded flex gap-2"
         >
-          Add New Employee
+          <UserCircle /> Add New Employee
         </button>
       </div>
 

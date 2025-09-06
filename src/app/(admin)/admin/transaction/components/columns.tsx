@@ -19,6 +19,7 @@ import {
 import { DeclarationRow } from "./types";
 import { formatDate, PeriodBadge, CapacityChip, CertBadge, TtpBar } from "./utils";
 import toast from "react-hot-toast";
+import EditTransactionDialog from "./EditTransactionDialog";
 
 export const columns: (handleDelete: (id: number) => void, loadDetails: (id: number) => Promise<any>) => ColumnDef<DeclarationRow>[] = (handleDelete, loadDetails) => [
     {
@@ -34,7 +35,7 @@ export const columns: (handleDelete: (id: number) => void, loadDetails: (id: num
               row.toggleExpanded(next);
               if (next) {
                 const data = await loadDetails(row.original.id);
-                console.log(data);
+                ;
               }
             }}
             className="rounded p-1 hover:bg-emerald-100"
@@ -179,25 +180,18 @@ export const columns: (handleDelete: (id: number) => void, loadDetails: (id: num
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex gap-2">
+          <EditTransactionDialog transaction={row.original} />
           <button
-            type="button"
-            onClick={() => toast("Edit belum diimplementasi")}
-            className="inline-flex items-center gap-1.5 border border-emerald-500 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-50"
-          >
-            <Edit2 className="h-4 w-4" /> Edit
-          </button>
-          <button
-            type="button"
+            type="button" 
             onClick={() => handleDelete(row.original.id)}
             className="inline-flex items-center gap-1.5 border border-red-500 text-red-600 px-3 py-1 rounded hover:bg-red-50"
           >
-            <Trash2 className="h-4 w-4" /> Hapus
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
       ),
       meta: {
-        headerClassName: "min-w-[200px]",
-        cellClassName: "min-w-[200px]",
+        headerClassName: "min-w-[100px]",
       },
     },
   ];

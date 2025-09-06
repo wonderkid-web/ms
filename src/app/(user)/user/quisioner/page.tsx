@@ -11,7 +11,7 @@ export default function QuisionerListPage() {
   const fetchQuisioner = async () => {
     const raw = await fetch("/api/quisioner")
     const {data} = await raw.json()
-    console.log(data)
+    
     setItems(data)
 
   }

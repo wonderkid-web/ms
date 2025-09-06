@@ -22,7 +22,7 @@ function SidebarMenuComponent() {
             <div className="text-4xl mb-2"><UserIcon className="mx-auto" size={48} /></div>
             <h2 className="text-xl font-bold">Admin Page</h2>
             <p className="text-sm text-gray-200">Welcome, Admin User</p>
-            <button className="mt-2 text-sm text-blue-200 hover:text-blue-50" onClick={() => console.log("Logout")}>Logout</button>
+            <button className="mt-2 text-sm text-blue-200 hover:text-blue-50" >Logout</button>
           </SidebarHeader>
 
           <SidebarContent>

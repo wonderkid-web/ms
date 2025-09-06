@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useEffect } from "react";
@@ -8,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { selectTheme, Field, selectStyles } from "./ui";
+import { Field, selectStyles, selectTheme } from "./ui";
 import toast from "react-hot-toast";
-import { createDeclaration } from "@/services/declarationServices";
+import { createDeclaration, updateDeclaration } from "@/services/declarationServices";
 import dynamic from "next/dynamic";
 const Select = dynamic(() => import("react-select"), {
   ssr: false, // aman untuk komponen client-only
@@ -18,6 +19,7 @@ const Select = dynamic(() => import("react-select"), {
 });
 
 import { useFieldArray } from "react-hook-form";
+import { FormInput } from "lucide-react";
 
 const supplierTypeOptions = [
   { value: "INTI", label: "Inti" },
@@ -133,11 +135,15 @@ export default function DeclarationForm({
   groupOptions,
   supplierOptions,
   pabrikOptions,
+  declaration,
+  details,
 }: {
   produkOptions: OptionType[];
   groupOptions: OptionType[];
   supplierOptions: OptionType[];
   pabrikOptions: PabrikOption[];
+  declaration?: any;
+  details?: any;
 }) {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -150,7 +156,24 @@ export default function DeclarationForm({
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver<FormValues>(schema),
-    defaultValues: {
+    defaultValues: declaration ? {
+      ...declaration,
+      periodeDari: new Date(declaration.periodeDari).toISOString().slice(0, 10),
+      periodeSampai: new Date(declaration.periodeSampai).toISOString().slice(0, 10),
+      tanggalPengisian: new Date(declaration.tanggalPengisian).toISOString().slice(0, 10),
+      produk: { value: String(declaration.produk.id), label: declaration.produk.name },
+      group: { value: String(declaration.group.id), label: declaration.group.name },
+      supplier: declaration.supplier ? { value: String(declaration.supplier.id), label: declaration.supplier.name } : null,
+      pabrik: declaration.factory ? { value: String(declaration.factory.id), label: declaration.factory.name, alamat: declaration.alamatPabrik, lat: declaration.latitude, lng: declaration.longitude } : null,
+      kapasitas: { value: declaration.kapasitas, label: `${declaration.kapasitas} ton/tahun` },
+      sertifikasi: declaration.sertifikasi.split(',').map((s: string) => ({ value: s, label: s })),
+      details: details.map((d: any) => ({
+        ...d,
+        jenisSupplier: { value: d.jenisSupplier, label: d.jenisSupplier },
+        petaKebun: d.petaKebun ? { value: d.petaKebun, label: d.petaKebun } : null,
+        statusLegalitas: d.statusLegalitas ? { value: d.statusLegalitas, label: d.statusLegalitas } : null,
+      })),
+    } : {
       sertifikasi: [],
       tanggalPengisian: today,
       alamatPabrik: "",
@@ -217,38 +240,73 @@ export default function DeclarationForm({
 
   const onSubmit: SubmitHandler<FormValues> = async (v) => {
     try {
-      await createDeclaration({
-        // --- header (lama) ---
-        produkId: parseInt(v.produk.value),
-        groupId: parseInt(v.group.value),
-        supplierId: v.supplier ? parseInt(v.supplier.value) : null,
-        factoryId: parseInt(v.pabrik?.value!),
-        alamatPabrik: v.alamatPabrik,
-        latitude: v.latitude,
-        longitude: v.longitude,
-        kapasitas: v.kapasitas.value,
-        sertifikasi: (v.sertifikasi ?? []).map((s) => s.value).join(","),
-        periodeDari: new Date(v.periodeDari),
-        periodeSampai: new Date(v.periodeSampai),
-        totalPersenTtp: v.totalPersenTtp,
-        tanggalPengisian: new Date(v.tanggalPengisian),
-        diisiOleh: v.diisiOleh,
+      if (declaration) {
+        await updateDeclaration(declaration.id, {
+          // --- header (lama) ---
+          produkId: parseInt(v.produk.value),
+          groupId: parseInt(v.group.value),
+          supplierId: v.supplier ? parseInt(v.supplier.value) : null,
+          factoryId: parseInt(v.pabrik?.value!),
+          alamatPabrik: v.alamatPabrik,
+          latitude: v.latitude,
+          longitude: v.longitude,
+          kapasitas: v.kapasitas.value,
+          sertifikasi: (v.sertifikasi ?? []).map((s) => s.value).join(","),
+          periodeDari: new Date(v.periodeDari),
+          periodeSampai: new Date(v.periodeSampai),
+          totalPersenTtp: v.totalPersenTtp,
+          tanggalPengisian: new Date(v.tanggalPengisian),
+          diisiOleh: v.diisiOleh,
 
-        // --- NEW: details ---
-        details: v.details.map((d) => ({
-          namaSupplier: d.namaSupplier,
-          jenisSupplier: d.jenisSupplier.value,
-          jumlahPetani: d.jumlahPetani ?? null,
-          alamatKebun: d.alamatKebun,
-          latitude: d.latitude ?? null,
-          longitude: d.longitude ?? null,
-          petaKebun: d.petaKebun?.value ?? null,
-          areaHa: d.areaHa ?? null,
-          statusLegalitas: d.statusLegalitas?.value ?? null,
-          persentaseSuplai: d.persentaseSuplai,
-        })),
-      });
-      toast.success("Declaration + detail tersimpan!");
+          // --- NEW: details ---
+          details: v.details.map((d) => ({
+            namaSupplier: d.namaSupplier,
+            jenisSupplier: d.jenisSupplier.value,
+            jumlahPetani: d.jumlahPetani ?? null,
+            alamatKebun: d.alamatKebun,
+            latitude: d.latitude ?? null,
+            longitude: d.longitude ?? null,
+            petaKebun: d.petaKebun?.value ?? null,
+            areaHa: d.areaHa ?? null,
+            statusLegalitas: d.statusLegalitas?.value ?? null,
+            persentaseSuplai: d.persentaseSuplai,
+          })),
+        });
+        toast.success("Declaration + detail berhasil diupdate!");
+      } else {
+        await createDeclaration({
+          // --- header (lama) ---
+          produkId: parseInt(v.produk.value),
+          groupId: parseInt(v.group.value),
+          supplierId: v.supplier ? parseInt(v.supplier.value) : null,
+          factoryId: parseInt(v.pabrik?.value!),
+          alamatPabrik: v.alamatPabrik,
+          latitude: v.latitude,
+          longitude: v.longitude,
+          kapasitas: v.kapasitas.value,
+          sertifikasi: (v.sertifikasi ?? []).map((s) => s.value).join(","),
+          periodeDari: new Date(v.periodeDari),
+          periodeSampai: new Date(v.periodeSampai),
+          totalPersenTtp: v.totalPersenTtp,
+          tanggalPengisian: new Date(v.tanggalPengisian),
+          diisiOleh: v.diisiOleh,
+
+          // --- NEW: details ---
+          details: v.details.map((d) => ({
+            namaSupplier: d.namaSupplier,
+            jenisSupplier: d.jenisSupplier.value,
+            jumlahPetani: d.jumlahPetani ?? null,
+            alamatKebun: d.alamatKebun,
+            latitude: d.latitude ?? null,
+            longitude: d.longitude ?? null,
+            petaKebun: d.petaKebun?.value ?? null,
+            areaHa: d.areaHa ?? null,
+            statusLegalitas: d.statusLegalitas?.value ?? null,
+            persentaseSuplai: d.persentaseSuplai,
+          })),
+        });
+        toast.success("Declaration + detail tersimpan!");
+      }
     } catch {
       toast.error("Gagal menyimpan declaration");
     }
@@ -257,7 +315,7 @@ export default function DeclarationForm({
   return (
     <div className=" rounded-xl border bg-white p-5 shadow-sm md:p-6">
       <h1 className="mb-1 text-2xl font-bold text-emerald-800">
-        Declaration Form
+        {declaration ? "Edit Declaration" : "Declaration Form"}
       </h1>
       <Separator className="mb-4" />
 
@@ -276,12 +334,10 @@ export default function DeclarationForm({
                   <Select<OptionType, false>
                     {...field}
                     options={produkOptions}
-                    styles={selectStyles}
+                    styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                     theme={selectTheme}
                     placeholder="Pilih produk"
-                    menuPortalTarget={
-                      typeof window !== "undefined" ? document.body : undefined
-                    }
+                    menuPosition="fixed"
                   />
                 )}
               />
@@ -295,11 +351,9 @@ export default function DeclarationForm({
                   <Select<OptionType, false>
                     {...field}
                     options={groupOptions}
-                    styles={selectStyles}
+                    styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                     theme={selectTheme}
-                    menuPortalTarget={
-                      typeof window !== "undefined" ? document.body : undefined
-                    }
+                    menuPosition="fixed"
                   />
                 )}
               />
@@ -314,12 +368,10 @@ export default function DeclarationForm({
                     {...field}
                     isClearable
                     options={supplierOptions}
-                    styles={selectStyles}
+                    styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                     theme={selectTheme}
                     placeholder="Pilih supplier"
-                    menuPortalTarget={
-                      typeof window !== "undefined" ? document.body : undefined
-                    }
+                    menuPosition="fixed"
                   />
                 )}
               />
@@ -333,12 +385,10 @@ export default function DeclarationForm({
                   <Select<PabrikOption, false>
                     {...field}
                     options={pabrikOptions}
-                    styles={selectStyles}
+                    styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                     theme={selectTheme}
                     placeholder="Pilih pabrik"
-                    menuPortalTarget={
-                      typeof window !== "undefined" ? document.body : undefined
-                    }
+                    menuPosition="fixed"
                     onChange={(opt) => {
                       field.onChange(opt);
                       setValue("alamatPabrik", opt?.alamat ?? "");
@@ -394,9 +444,10 @@ export default function DeclarationForm({
                   <Select<OptionType, false>
                     {...field}
                     options={kapasitasOptions}
-                    styles={selectStyles}
+                    styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                     theme={selectTheme}
                     placeholder="Pilih kapasitas"
+                    menuPosition="fixed"
                   />
                 )}
               />
@@ -411,9 +462,10 @@ export default function DeclarationForm({
                     {...field}
                     isMulti
                     options={sertifikasiOptions}
-                    styles={selectStyles}
+                    styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                     theme={selectTheme}
                     placeholder="Pilih sertifikasi"
+                    menuPosition="fixed"
                   />
                 )}
               />
@@ -494,7 +546,7 @@ export default function DeclarationForm({
                 {fields.map((f, idx) => (
                   <tr key={f.id} className="border-t">
                     {/* Nama Supplier */}
-                    <td className="p-2 align-top">
+                    <td className="p-2 align-top min-w-[200px]">
                       <Input
                         placeholder="Nama supplier/kebun"
                         {...register(`details.${idx}.namaSupplier` as const)}
@@ -507,7 +559,7 @@ export default function DeclarationForm({
                     </td>
 
                     {/* Jenis Supplier */}
-                    <td className="p-2 align-top min-w-[160px]">
+                    <td className="p-2 align-top min-w-[200px]">
                       <Controller
                         control={control}
                         name={`details.${idx}.jenisSupplier` as const}
@@ -515,23 +567,20 @@ export default function DeclarationForm({
                           <Select<OptionType, false>
                             {...field}
                             options={supplierTypeOptions}
-                            styles={selectStyles}
+                            styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                             theme={selectTheme}
                             placeholder="Pilih jenis"
-                            menuPortalTarget={
-                              typeof window !== "undefined"
-                                ? document.body
-                                : undefined
-                            }
+                            menuPosition="fixed"
                           />
                         )}
                       />
                     </td>
 
                     {/* Jumlah Petani */}
-                    <td className="p-2 align-top">
+                    <td className="p-2 align-top min-w-[100px]">
                       <Input
                         type="number"
+                        className="text-center"
                         min={0}
                         {...register(`details.${idx}.jumlahPetani` as const, {
                           setValueAs: (v) => (v === "" ? undefined : Number(v)),
@@ -554,7 +603,7 @@ export default function DeclarationForm({
                     </td>
 
                     {/* Lat */}
-                    <td className="p-2 align-top">
+                    <td className="p-2 align-top min-w-[100px]">
                       <Input
                         type="number"
                         step="any"
@@ -566,7 +615,7 @@ export default function DeclarationForm({
                     </td>
 
                     {/* Lon */}
-                    <td className="p-2 align-top">
+                    <td className="p-2 align-top min-w-[100px]">
                       <Input
                         type="number"
                         step="any"
@@ -578,7 +627,7 @@ export default function DeclarationForm({
                     </td>
 
                     {/* Peta Kebun */}
-                    <td className="p-2 align-top min-w-[150px]">
+                    <td className="p-2 align-top min-w-[200px]">
                       <Controller
                         control={control}
                         name={`details.${idx}.petaKebun` as const}
@@ -587,21 +636,17 @@ export default function DeclarationForm({
                             {...field}
                             isClearable
                             options={mapAvailabilityOptions}
-                            styles={selectStyles}
+                            styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                             theme={selectTheme}
                             placeholder="Pilih"
-                            menuPortalTarget={
-                              typeof window !== "undefined"
-                                ? document.body
-                                : undefined
-                            }
+                            menuPosition="fixed"
                           />
                         )}
                       />
                     </td>
 
                     {/* Area (HA) */}
-                    <td className="p-2 align-top">
+                    <td className="p-2 align-top min-w-[100px]">
                       <Input
                         type="number"
                         step="0.01"
@@ -613,7 +658,7 @@ export default function DeclarationForm({
                     </td>
 
                     {/* Status Legalitas */}
-                    <td className="p-2 align-top min-w-[150px]">
+                    <td className="p-2 align-top min-w-[200px]">
                       <Controller
                         control={control}
                         name={`details.${idx}.statusLegalitas` as const}
@@ -622,24 +667,21 @@ export default function DeclarationForm({
                             {...field}
                             isClearable
                             options={legalStatusOptions}
-                            styles={selectStyles}
+                            styles={{ ...selectStyles, menu: (base) => ({ ...base, zIndex: 9999 }) }}
                             theme={selectTheme}
                             placeholder="Pilih"
-                            menuPortalTarget={
-                              typeof window !== "undefined"
-                                ? document.body
-                                : undefined
-                            }
+                            menuPosition="fixed"
                           />
                         )}
                       />
                     </td>
 
                     {/* Persentase */}
-                    <td className="p-2 align-top">
+                    <td className="p-2 align-top min-w-[100px]">
                       <Input
                         type="number"
                         step="0.01"
+                        className="text-center"
                         min={0}
                         max={100}
                         {...register(
@@ -660,7 +702,7 @@ export default function DeclarationForm({
                     </td>
 
                     {/* Aksi */}
-                    <td className="p-2 align-top">
+                    <td className="p-2 align-top min-w-24 mx-auto text-center">
                       <button
                         type="button"
                         onClick={() => remove(idx)}
@@ -678,7 +720,7 @@ export default function DeclarationForm({
           <div className="flex items-center justify-between">
             <Button
               type="button"
-              variant="outline"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white"
               onClick={() =>
                 append({
                   namaSupplier: "",
@@ -694,7 +736,7 @@ export default function DeclarationForm({
                 } as DetailForm)
               }
             >
-              Tambah Baris
+              <FormInput /> Tambah Baris
             </Button>
 
             <div className="text-sm">
@@ -725,7 +767,7 @@ export default function DeclarationForm({
             Batal
           </Button>
           <Button type="submit" className="bg-emerald-700 hover:bg-emerald-800">
-            Simpan
+            {declaration ? "Update" : "Simpan"}
           </Button>
         </div>
       </form>
