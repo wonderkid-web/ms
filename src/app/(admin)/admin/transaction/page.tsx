@@ -32,6 +32,7 @@ import { FilterBar } from "./components/FilterBar";
 import { TransactionTable } from "./components/TransactionTable";
 import { Pagination } from "./components/Pagination";
 import { formatDate } from "./components/utils";
+import { showSuccessToast } from "@/components/toast";
 
 /* ---------- Main Component ---------- */
 export default function DeclarationTable() {
@@ -184,7 +185,7 @@ export default function DeclarationTable() {
     if (!confirm("Yakin hapus declaration ini?")) return;
     try {
       await deleteDeclaration(id);
-      toast.success("Declaration berhasil dihapus");
+      showSuccessToast("Declaration berhasil dihapus");
       await loadData();
       setDetailCache((p) => {
         const c = { ...p };

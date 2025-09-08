@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { getProductGroups, createProductGroup, updateProductGroup, deleteProductGroup } from "@/services/productGroupService";
 import { LucideFactory } from "lucide-react";
+import { showSuccessToast } from "@/components/toast";
 
 type ProductGroup = {
   id: number;
@@ -30,10 +31,10 @@ export default function ProductGroupsPage() {
     try {
       if (editingId) {
         await updateProductGroup(editingId, form);
-        toast.success("Product Group berhasil diperbarui!");
+        showSuccessToast("Product Group berhasil diperbarui!");
       } else {
         await createProductGroup(form);
-        toast.success("Product Group berhasil ditambahkan!");
+        showSuccessToast("Product Group berhasil ditambahkan!");
       }
       loadData();
       setShowModal(false);
@@ -47,7 +48,7 @@ export default function ProductGroupsPage() {
   async function removeData(id: number) {
     try {
       await deleteProductGroup(id);
-      toast.success("Product Group berhasil dihapus!");
+      showSuccessToast("Product Group berhasil dihapus!");
       loadData();
     } catch {
       toast.error("Gagal menghapus Product Group");

@@ -15,6 +15,7 @@ import {
   deleteGroup,
 } from "@/services/groupServices";
 import { Group } from "lucide-react";
+import { showSuccessToast } from "@/components/toast";
 
 type Group = {
   id: number;
@@ -45,10 +46,10 @@ export default function GroupsPage() {
     try {
       if (editingId) {
         await updateGroup(editingId, form);
-        toast.success("Group berhasil diperbarui!");
+        showSuccessToast("Group berhasil diperbarui!");
       } else {
         await createGroup(form);
-        toast.success("Group berhasil ditambahkan!");
+        showSuccessToast("Group berhasil ditambahkan!");
       }
       loadData();
       setShowModal(false);
@@ -62,7 +63,7 @@ export default function GroupsPage() {
   async function removeData(id: number) {
     try {
       await deleteGroup(id);
-      toast.success("Group berhasil dihapus!");
+      showSuccessToast("Group berhasil dihapus!");
       loadData();
     } catch {
       toast.error("Gagal menghapus Group");

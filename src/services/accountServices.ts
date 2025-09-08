@@ -112,7 +112,7 @@ export async function listAccounts(params?: {
 
   const [rows, total] = await Promise.all([
     prisma.account.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: {company: "asc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

@@ -32,7 +32,7 @@ export default function AccountCreateFormDialog() {
                 onClick={openModal}
             >
                 <UserPlus />
-                Create New Account
+                Add Customer
             </Button>
 
             <Dialog open={open} onClose={closeModal} className="relative z-50">

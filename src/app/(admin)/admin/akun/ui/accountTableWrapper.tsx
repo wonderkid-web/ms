@@ -63,7 +63,7 @@ export default function AccountTableWrapper({ initialRows }: AccountTableWrapper
                         placeholder="Search Account..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="max-w-sm min-w-sm"
+                        className="max-w-sm min-w-12"
                     />
                     <AccountCreateFormDialog />
                 </div>

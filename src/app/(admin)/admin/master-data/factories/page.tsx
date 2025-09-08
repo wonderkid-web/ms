@@ -15,6 +15,7 @@ import {
   deleteFactory,
 } from "@/services/factoryService";
 import { PlusSquare } from "lucide-react";
+import { showSuccessToast } from "@/components/toast";
 
 type Factory = {
   id: number;
@@ -50,10 +51,10 @@ export default function FactoriesPage() {
     try {
       if (editingId) {
         await updateFactory(editingId, form);
-        toast.success("Factory berhasil diperbarui!");
+        showSuccessToast("Factory berhasil diperbarui!");
       } else {
         await createFactory(form);
-        toast.success("Factory berhasil ditambahkan!");
+        showSuccessToast("Factory berhasil ditambahkan!");
       }
       loadData();
       setShowModal(false);
@@ -67,7 +68,7 @@ export default function FactoriesPage() {
   async function removeData(id: number) {
     try {
       await deleteFactory(id);
-      toast.success("Factory berhasil dihapus!");
+      showSuccessToast("Factory berhasil dihapus!");
       loadData();
     } catch {
       toast.error("Gagal menghapus Factory");

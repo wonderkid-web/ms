@@ -20,6 +20,7 @@ const Select = dynamic(() => import("react-select"), {
 
 import { useFieldArray } from "react-hook-form";
 import { FormInput } from "lucide-react";
+import { showErrorToast, showSuccessToast } from "@/components/toast";
 
 const supplierTypeOptions = [
   { value: "INTI", label: "Inti" },
@@ -272,7 +273,7 @@ export default function DeclarationForm({
             persentaseSuplai: d.persentaseSuplai,
           })),
         });
-        toast.success("Declaration + detail berhasil diupdate!");
+        showSuccessToast("Declaration + detail berhasil diupdate!");
       } else {
         await createDeclaration({
           // --- header (lama) ---
@@ -305,10 +306,10 @@ export default function DeclarationForm({
             persentaseSuplai: d.persentaseSuplai,
           })),
         });
-        toast.success("Declaration + detail tersimpan!");
+        showSuccessToast("Declaration + detail tersimpan!");
       }
     } catch {
-      toast.error("Gagal menyimpan declaration");
+      showErrorToast("Gagal menyimpan declaration");
     }
   };
 

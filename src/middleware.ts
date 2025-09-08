@@ -7,6 +7,8 @@ const HOME_BY_ROLE: Record<string, string> = {
   VIEWER: "/user",
 };
 
+// aqua timez
+
 const DEFAULT_HOME = "/user";
 
 const isAdminArea = createRouteMatcher(["/admin(.*)"]);
@@ -17,7 +19,7 @@ export default clerkMiddleware(async (auth, req) => {
   const { isAuthenticated, sessionClaims } = await auth();
   const url = new URL(req.url);
 
-  
+
   // Ambil role dari session claims (hasil mirror publicMetadata)
   const role = (sessionClaims as any)?.metadata?.role as string | undefined;
   const roleHome = (role && HOME_BY_ROLE[role]) || DEFAULT_HOME;
@@ -53,6 +55,12 @@ export default clerkMiddleware(async (auth, req) => {
   // 4) Lindungi area /user: wajib login (role apa pun)
   if (isUserArea(req)) {
     await auth.protect();
+
+    if (role !== "VIEWER") {
+      url.pathname = roleHome;      // non-admin dialihkan
+      return NextResponse.redirect(url);
+    }
+
     return NextResponse.next();
   }
 

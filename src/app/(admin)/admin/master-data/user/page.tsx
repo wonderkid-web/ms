@@ -15,6 +15,7 @@ import {
 } from "@/services/employeeServices";
 import toast from "react-hot-toast";
 import { User, UserCircle } from "lucide-react";
+import { showSuccessToast } from "@/components/toast";
 
 type User = {
   id: number;
@@ -50,10 +51,10 @@ export default function UsersPage() {
     try {
       if (editingId) {
         await updateEmployee(editingId, form);
-        toast.success("Data karyawan berhasil diperbarui!");
+        showSuccessToast("Data karyawan berhasil diperbarui!");
       } else {
         await createEmployee(form);
-        toast.success("Data karyawan berhasil ditambahkan!");
+        showSuccessToast("Data karyawan berhasil ditambahkan!");
       }
       loadData();
       setShowModal(false);

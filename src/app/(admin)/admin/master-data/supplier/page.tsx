@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from "@/services/supplierServices";
 import { Factory, Network, Superscript } from "lucide-react";
+import { showSuccessToast } from "@/components/toast";
 
 type Supplier = {
   id: number;
@@ -30,10 +31,10 @@ export default function SuppliersPage() {
     try {
       if (editingId) {
         await updateSupplier(editingId, form);
-        toast.success("Supplier berhasil diperbarui!");
+        showSuccessToast("Supplier berhasil diperbarui!");
       } else {
         await createSupplier(form);
-        toast.success("Supplier berhasil ditambahkan!");
+        showSuccessToast("Supplier berhasil ditambahkan!");
       }
       loadData();
       setShowModal(false);
@@ -47,7 +48,7 @@ export default function SuppliersPage() {
   async function removeData(id: number) {
     try {
       await deleteSupplier(id);
-      toast.success("Supplier berhasil dihapus!");
+      showSuccessToast("Supplier berhasil dihapus!");
       loadData();
     } catch {
       toast.error("Gagal menghapus Supplier");

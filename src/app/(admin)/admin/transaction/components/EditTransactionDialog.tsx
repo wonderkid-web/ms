@@ -78,7 +78,7 @@ export default function EditTransactionDialog({ transaction }: EditTransactionDi
                         transition
                         className="max-w-7xl space-y-4 bg-white p-6 rounded-lg shadow-lg transition-all duration-300 ease-in-out data-[closed]:scale-95 data-[closed]:opacity-0 max-h-[90vh] overflow-y-auto"
                     >
-                        <DialogTitle className="text-lg font-bold fixed top-0">Edit Transaction ⏳</DialogTitle>
+                        <DialogTitle className="text-lg font-bold">Edit Transaction ⏳</DialogTitle>
                         {productOptions.length > 0 && factoryOptions.length > 0 && declarationDetails && (
                             <DeclarationForm
                                 produkOptions={productOptions}
